@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VCam Bypass</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        font-family: "Segoe UI", system-ui, sans-serif;
+        width: 320px;
+        margin: 0;
+        padding: 16px;
+        background: #1e1e1e;
+        color: #f0f0f0;
+      }
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+      }
+      .header img {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+      }
+      h1 {
+        font-size: 15px;
+        margin: 0;
+      }
+      p.sub {
+        font-size: 11px;
+        color: #9a9a9a;
+        margin: 0 0 14px;
+      }
+      .row {
+        margin-bottom: 12px;
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        margin-bottom: 4px;
+        color: #c8c8c8;
+      }
+      input[type="text"],
+      select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 7px 8px;
+        border: 1px solid #3a3a3a;
+        border-radius: 6px;
+        background: #2a2a2a;
+        color: #f0f0f0;
+        font-size: 12px;
+      }
+      input[type="text"]:focus,
+      select:focus {
+        outline: none;
+        border-color: #4c8bf5;
+      }
+      .detect {
+        margin-top: 6px;
+        width: 100%;
+        flex: none;
+        background: #3a3a3a;
+        color: #f0f0f0;
+      }
+      /* The whole row is a clickable <label> that toggles the checkbox. */
+      label.toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 0 0 12px;
+        font-size: 13px;
+        color: #f0f0f0;
+        cursor: pointer;
+      }
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 22px;
+        flex: 0 0 auto;
+      }
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        inset: 0;
+        cursor: pointer;
+        background: #555;
+        border-radius: 22px;
+        transition: 0.2s;
+      }
+      .slider::before {
+        content: "";
+        position: absolute;
+        height: 16px;
+        width: 16px;
+        left: 3px;
+        top: 3px;
+        background: #fff;
+        border-radius: 50%;
+        transition: 0.2s;
+      }
+      .switch input:checked + .slider {
+        background: #4c8bf5;
+      }
+      .switch input:checked + .slider::before {
+        transform: translateX(18px);
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+      }
+      button {
+        flex: 1;
+        padding: 8px;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      #save {
+        background: #4c8bf5;
+        color: #fff;
+      }
+      #reset {
+        background: #3a3a3a;
+        color: #f0f0f0;
+      }
+      #status {
+        font-size: 11px;
+        color: #6cc070;
+        height: 14px;
+        margin-top: 8px;
+        text-align: center;
+      }
+      .gh-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        margin-top: 14px;
+        padding-top: 10px;
+        border-top: 1px solid #2e2e2e;
+        font-size: 11px;
+        color: #707070;
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .gh-link:hover {
+        color: #9ab8d8;
+      }
+      .gh-link svg {
+        flex-shrink: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <img src="icons/extension_icon32.png" alt="VCam Bypass icon" />
+      <h1>VCam Bypass</h1>
+    </div>
+    <p class="sub">Rewrites the device info exposed to the browser.</p>
+
+    <label class="toggle">
+      <span>Enabled</span>
+      <span class="switch">
+        <input type="checkbox" id="enabled" />
+        <span class="slider"></span>
+      </span>
+    </label>
+
+    <div class="row">
+      <label for="cameraSelect">Target webcam</label>
+      <select id="cameraSelect">
+        <option value="">Auto (detect virtual cameras)</option>
+      </select>
+      <button id="detect" type="button" class="detect">Detect cameras</button>
+    </div>
+
+    <div class="row">
+      <label for="fakeLabel">Fake name (label)</label>
+      <input type="text" id="fakeLabel" placeholder="Integrated Webcam (1bcf:2b95)" />
+    </div>
+
+    <div class="row">
+      <label for="fakeDeviceId">Fake deviceId (64-char hex)</label>
+      <input type="text" id="fakeDeviceId" placeholder="8b5e0d3a9c1f7e2b4d6a8c0f2e4b6d8a0c2e4f6b8d0a2c4e6f8b0d2a4c6e8f0b" />
+    </div>
+
+    <div class="row">
+      <label for="fakeGroupId">Fake groupId (64-char hex)</label>
+      <input type="text" id="fakeGroupId" placeholder="1f3a5c7e90b2d4f68a0c2e4b6d8f0a1c3e5b7d9f0a2c4e6b8d0f2a4c6e8b0d1f" />
+    </div>
+
+    <div class="actions">
+      <button id="reset">Reset</button>
+      <button id="save">Save</button>
+    </div>
+    <div id="status"></div>
+    <a class="gh-link" href="https://github.com/xViada/VCam-Bypass" target="_blank" rel="noopener">
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/>
+      </svg>
+      github.com/xViada/VCam-Bypass
+    </a>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

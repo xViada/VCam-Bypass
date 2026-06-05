@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "VCam Bypass",
+  "version": "1.0.0",
+  "description": "Makes any virtual camera appear in the browser as a physical webcam by spoofing label, deviceId, groupId and capabilities.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://www.linux-usb.org/*",
+    "http://www.linux-usb.org/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "VCam Bypass",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "icons/extension_icon16.png",
+    "32": "icons/extension_icon32.png",
+    "48": "icons/extension_icon48.png",
+    "128": "icons/extension_icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["inject.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["bridge.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "ISOLATED"
+    }
+  ]
+}
