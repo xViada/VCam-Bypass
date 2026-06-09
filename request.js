@@ -1,24 +1,40 @@
 (function () {
   "use strict";
 
-  var statusEl = document.getElementById("status");
-  var listEl = document.getElementById("list");
+  const statusEl = document.getElementById("status");
+  const listEl = document.getElementById("list");
 
   function setStatus(msg, color) {
     statusEl.textContent = msg;
     statusEl.style.color = color || "#f0f0f0";
   }
 
-  function storeCameras(labels) {
-    return new Promise(function (resolve) {
-      chrome.storage.local.get({ __availableCameras: [] }, function (s) {
-        var merged = ((s && s.__availableCameras) || []).slice();
-        labels.forEach(function (l) {
+  function storeLabels(storageKey, labels) {
+    return new Promise((resolve) => {
+      chrome.storage.local.get({ __availableCameras: [], __availableMics: [] }, (s) => {
+        const merged = ((s && s[storageKey]) || []).slice();
+        labels.forEach((l) => {
           if (l && merged.indexOf(l) < 0) merged.push(l);
         });
-        chrome.storage.local.set({ __availableCameras: merged }, resolve);
+        chrome.storage.local.set({ [storageKey]: merged }, resolve);
       });
     });
+  }
+
+  function renderGroup(title, items) {
+    if (!items.length) return;
+    const heading = document.createElement("p");
+    heading.textContent = title;
+    heading.style.margin = "12px 0 4px";
+    listEl.appendChild(heading);
+
+    const ul = document.createElement("ul");
+    items.forEach((text) => {
+      const li = document.createElement("li");
+      li.textContent = text;
+      ul.appendChild(li);
+    });
+    listEl.appendChild(ul);
   }
 
   function requestAndDetect() {
@@ -26,50 +42,43 @@
     listEl.innerHTML = "";
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setStatus("This browser does not support camera access.", "#e06c75");
+      setStatus("This browser does not support media access.", "#e06c75");
       return;
     }
 
     navigator.mediaDevices
-      .getUserMedia({ video: true })
-      .then(function (stream) {
-        stream.getTracks().forEach(function (t) {
-          t.stop();
-        });
+      .getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        stream.getTracks().forEach((t) => t.stop());
         return navigator.mediaDevices.enumerateDevices();
       })
-      .then(function (devices) {
-        var cams = [];
-        devices.forEach(function (d) {
+      .then((devices) => {
+        const cams = [];
+        const mics = [];
+        devices.forEach((d) => {
           if (d.kind === "videoinput" && d.label) cams.push(d.label);
+          if (d.kind === "audioinput" && d.label) mics.push(d.label);
         });
-        return storeCameras(cams).then(function () {
-          if (cams.length) {
-            setStatus("Permission granted. Detected cameras:", "#6cc070");
-            var ul = document.createElement("ul");
-            cams.forEach(function (c) {
-              var li = document.createElement("li");
-              li.textContent = c;
-              ul.appendChild(li);
-            });
-            listEl.appendChild(ul);
-            var hint = document.createElement("p");
-            hint.textContent =
-              "You can now close this tab and pick the camera in the popup.";
-            listEl.appendChild(hint);
-          } else {
-            setStatus(
-              "Permission granted but no named cameras were detected.",
-              "#e5c07b"
-            );
+
+        return Promise.all([
+          storeLabels("__availableCameras", cams),
+          storeLabels("__availableMics", mics)
+        ]).then(() => {
+          if (!cams.length && !mics.length) {
+            setStatus("Permission granted but no named devices were detected.", "#e5c07b");
+            return;
           }
+          setStatus("Permission granted. Detected devices:", "#6cc070");
+          renderGroup("Cameras:", cams);
+          renderGroup("Microphones:", mics);
+
+          const hint = document.createElement("p");
+          hint.textContent = "You can now close this tab and pick devices in the popup.";
+          listEl.appendChild(hint);
         });
       })
-      .catch(function (e) {
-        setStatus(
-          "Permission was not granted (" + (e && e.name ? e.name : "error") + ").",
-          "#e06c75"
-        );
+      .catch((e) => {
+        setStatus("Permission was not granted (" + (e && e.name ? e.name : "error") + ").", "#e06c75");
       });
   }
 

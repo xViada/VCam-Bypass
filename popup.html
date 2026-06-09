@@ -1,88 +1,82 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VCam Bypass</title>
     <style>
       :root {
-        color-scheme: light dark;
+        color-scheme: dark;
+        --bg: #131519;
+        --surface: #1b1e25;
+        --surface-2: #23262f;
+        --border: #2c303a;
+        --border-strong: #3a3f4b;
+        --text: #eef0f4;
+        --text-dim: #9aa0ac;
+        --text-faint: #6b7280;
+        --accent: #5b8cff;
+        --accent-hover: #6f9bff;
+        --ok: #4ade80;
+        --err: #f87171;
+        --radius: 9px;
       }
+
+      * {
+        box-sizing: border-box;
+      }
+
       body {
-        font-family: "Segoe UI", system-ui, sans-serif;
-        width: 320px;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        width: 328px;
         margin: 0;
-        padding: 16px;
-        background: #1e1e1e;
-        color: #f0f0f0;
+        padding: 14px;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 13px;
+        line-height: 1.45;
       }
+
+      /* ---------- Header ---------- */
       .header {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 4px;
+        gap: 10px;
+        padding-bottom: 12px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid var(--border);
       }
       .header img {
-        width: 24px;
-        height: 24px;
+        width: 30px;
+        height: 30px;
         flex-shrink: 0;
+        border-radius: 7px;
       }
-      h1 {
+      .header-text {
+        flex: 1;
+        min-width: 0;
+      }
+      .header-text h1 {
         font-size: 15px;
+        font-weight: 600;
         margin: 0;
+        letter-spacing: -0.01em;
       }
-      p.sub {
-        font-size: 11px;
-        color: #9a9a9a;
-        margin: 0 0 14px;
+      .header-text p {
+        font-size: 10.5px;
+        color: var(--text-faint);
+        margin: 1px 0 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
-      .row {
-        margin-bottom: 12px;
-      }
-      label {
-        display: block;
-        font-size: 12px;
-        margin-bottom: 4px;
-        color: #c8c8c8;
-      }
-      input[type="text"],
-      select {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 7px 8px;
-        border: 1px solid #3a3a3a;
-        border-radius: 6px;
-        background: #2a2a2a;
-        color: #f0f0f0;
-        font-size: 12px;
-      }
-      input[type="text"]:focus,
-      select:focus {
-        outline: none;
-        border-color: #4c8bf5;
-      }
-      .detect {
-        margin-top: 6px;
-        width: 100%;
-        flex: none;
-        background: #3a3a3a;
-        color: #f0f0f0;
-      }
-      /* The whole row is a clickable <label> that toggles the checkbox. */
-      label.toggle {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin: 0 0 12px;
-        font-size: 13px;
-        color: #f0f0f0;
-        cursor: pointer;
-      }
+
+      /* ---------- Toggle switch ---------- */
       .switch {
         position: relative;
         display: inline-block;
         width: 40px;
-        height: 22px;
+        height: 23px;
         flex: 0 0 auto;
       }
       .switch input {
@@ -94,70 +88,258 @@
         position: absolute;
         inset: 0;
         cursor: pointer;
-        background: #555;
-        border-radius: 22px;
+        background: var(--surface-2);
+        border: 1px solid var(--border-strong);
+        border-radius: 23px;
         transition: 0.2s;
       }
       .slider::before {
         content: "";
         position: absolute;
-        height: 16px;
-        width: 16px;
+        height: 15px;
+        width: 15px;
         left: 3px;
         top: 3px;
-        background: #fff;
+        background: #cfd3db;
         border-radius: 50%;
         transition: 0.2s;
       }
       .switch input:checked + .slider {
-        background: #4c8bf5;
+        background: var(--accent);
+        border-color: var(--accent);
       }
       .switch input:checked + .slider::before {
-        transform: translateX(18px);
+        transform: translateX(17px);
+        background: #fff;
       }
-      .actions {
+
+      /* ---------- Cards / sections ---------- */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px;
+        margin-bottom: 10px;
+      }
+      .card-title {
         display: flex;
-        gap: 8px;
-        margin-top: 16px;
+        align-items: center;
+        gap: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--text-faint);
+        margin: 0 0 10px;
       }
-      button {
-        flex: 1;
-        padding: 8px;
-        border: none;
-        border-radius: 6px;
-        font-size: 13px;
+      .card-title svg {
+        flex-shrink: 0;
+        opacity: 0.8;
+      }
+
+      .row {
+        margin-bottom: 10px;
+      }
+      .row:last-child {
+        margin-bottom: 0;
+      }
+      label {
+        display: block;
+        font-size: 11px;
+        margin-bottom: 5px;
+        color: var(--text-dim);
+      }
+
+      /* ---------- Inputs ---------- */
+      input[type="text"],
+      select {
+        width: 100%;
+        padding: 8px 9px;
+        border: 1px solid var(--border-strong);
+        border-radius: 7px;
+        background: var(--surface-2);
+        color: var(--text);
+        font-size: 12px;
+        font-family: inherit;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      input[type="text"]::placeholder {
+        color: #5a606c;
+      }
+      input[type="text"]:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba(91, 140, 255, 0.18);
+      }
+      select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239aa0ac' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 9px center;
+        padding-right: 28px;
         cursor: pointer;
       }
-      #save {
-        background: #4c8bf5;
+
+      .detect {
+        margin-top: 8px;
+        width: 100%;
+        padding: 7px;
+        border: 1px solid var(--border-strong);
+        border-radius: 7px;
+        background: var(--surface-2);
+        color: var(--text-dim);
+        font-size: 11.5px;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+      }
+      .detect:hover {
+        background: #2b2f39;
+        color: var(--text);
+        border-color: var(--accent);
+      }
+
+      /* ---------- Row head (label + new identity btn) ---------- */
+      .row-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 5px;
+      }
+      .row-head label {
+        margin-bottom: 0;
+      }
+      .id-btn {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 8px;
+        border: 1px solid var(--border-strong);
+        border-radius: 6px;
+        background: var(--surface-2);
+        color: var(--text-dim);
+        font-size: 10px;
+        font-family: inherit;
+        line-height: 1.4;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+      }
+      .id-btn:hover {
+        background: var(--accent);
+        border-color: var(--accent);
         color: #fff;
       }
-      #reset {
-        background: #3a3a3a;
-        color: #f0f0f0;
+      .id-btn .dice {
+        font-size: 12px;
+      }
+
+      /* ---------- Hint ---------- */
+      .hint {
+        font-size: 10.5px;
+        color: var(--text-faint);
+        margin: 7px 0 0;
+        line-height: 1.4;
+      }
+
+      /* ---------- Advanced collapsibles ---------- */
+      .advanced-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: none;
+        border: none;
+        padding: 4px 0 0;
+        margin: 0;
+        font-size: 11px;
+        font-family: inherit;
+        color: var(--text-faint);
+        cursor: pointer;
+        transition: color 0.15s;
+      }
+      .advanced-toggle:hover {
+        color: var(--accent-hover);
+      }
+      .advanced-toggle .chevron {
+        display: inline-block;
+        transition: transform 0.2s;
+      }
+      body.advanced-ids-visible #advancedToggle .chevron,
+      body.advanced-mic-ids-visible #advancedMicToggle .chevron {
+        transform: rotate(90deg);
+      }
+      .advanced-ids,
+      .advanced-mic-ids {
+        display: none;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed var(--border);
+      }
+      body.advanced-ids-visible .advanced-ids {
+        display: block;
+      }
+      body.advanced-mic-ids-visible .advanced-mic-ids {
+        display: block;
+      }
+
+      .mic-custom {
+        display: none;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border);
+      }
+      body.mic-custom-visible .mic-custom {
+        display: block;
+      }
+
+      /* ---------- Actions ---------- */
+      .actions {
+        margin-top: 12px;
+      }
+      #save {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      #save:hover {
+        background: var(--accent-hover);
+      }
+      #save:active {
+        transform: translateY(1px);
       }
       #status {
         font-size: 11px;
-        color: #6cc070;
+        color: var(--ok);
         height: 14px;
         margin-top: 8px;
         text-align: center;
+        transition: opacity 0.2s;
       }
+
+      /* ---------- Footer ---------- */
       .gh-link {
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 5px;
-        margin-top: 14px;
-        padding-top: 10px;
-        border-top: 1px solid #2e2e2e;
-        font-size: 11px;
-        color: #707070;
+        margin-top: 10px;
+        font-size: 10.5px;
+        color: var(--text-faint);
         text-decoration: none;
-        transition: color 0.2s;
+        transition: color 0.15s;
       }
       .gh-link:hover {
-        color: #9ab8d8;
+        color: var(--accent-hover);
       }
       .gh-link svg {
         flex-shrink: 0;
@@ -166,49 +348,126 @@
   </head>
   <body>
     <div class="header">
-      <img src="icons/extension_icon32.png" alt="VCam Bypass icon" />
-      <h1>VCam Bypass</h1>
-    </div>
-    <p class="sub">Rewrites the device info exposed to the browser.</p>
-
-    <label class="toggle">
-      <span>Enabled</span>
-      <span class="switch">
+      <img src="icons/extension_icon48.png" alt="VCam Bypass icon" />
+      <div class="header-text">
+        <h1>VCam Bypass</h1>
+        <p>Rewrites the device info exposed</p>
+      </div>
+      <label class="switch" title="Enable / disable disguise">
         <input type="checkbox" id="enabled" />
         <span class="slider"></span>
-      </span>
-    </label>
-
-    <div class="row">
-      <label for="cameraSelect">Target webcam</label>
-      <select id="cameraSelect">
-        <option value="">Auto (detect virtual cameras)</option>
-      </select>
-      <button id="detect" type="button" class="detect">Detect cameras</button>
+      </label>
     </div>
 
-    <div class="row">
-      <label for="fakeLabel">Fake name (label)</label>
-      <input type="text" id="fakeLabel" placeholder="Integrated Webcam (1bcf:2b95)" />
+    <div class="card">
+      <div class="card-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m22 8-6 4 6 4V8Z" />
+          <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
+        </svg>
+        Camera
+      </div>
+
+      <div class="row">
+        <label for="cameraSelect">Target webcam</label>
+        <select id="cameraSelect">
+          <option value="">Auto (detect virtual cameras)</option>
+        </select>
+        <button id="detect" type="button" class="detect">Detect cameras</button>
+      </div>
+
+      <div class="row">
+        <div class="row-head">
+          <label for="fakeLabel">Fake name (label)</label>
+          <button id="newCamIdentity" type="button" class="id-btn" title="Generate a new camera identity (label, deviceId, groupId)">
+            <span class="dice">&#127922;</span>
+            <span>New identity</span>
+          </button>
+        </div>
+        <input type="text" id="fakeLabel" placeholder="Integrated Webcam (1bcf:2b95)" />
+        <button id="advancedToggle" type="button" class="advanced-toggle" aria-expanded="false">
+          <span class="chevron">&#9656;</span>
+          <span>Advanced IDs</span>
+        </button>
+
+        <div class="advanced-ids">
+          <div class="row">
+            <label for="fakeDeviceId">Fake deviceId (64-char hex)</label>
+            <input type="text" id="fakeDeviceId" placeholder="8b5e0d3a9c1f7e2b4d6a8c0f2e4b6d8a0c2e4f6b8d0a2c4e6f8b0d2a4c6e8f0b" />
+          </div>
+          <div class="row">
+            <label for="fakeGroupId">Fake groupId (64-char hex)</label>
+            <input type="text" id="fakeGroupId" placeholder="1f3a5c7e90b2d4f68a0c2e4b6d8f0a1c3e5b7d9f0a2c4e6b8d0f2a4c6e8b0d1f" />
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="row">
-      <label for="fakeDeviceId">Fake deviceId (64-char hex)</label>
-      <input type="text" id="fakeDeviceId" placeholder="8b5e0d3a9c1f7e2b4d6a8c0f2e4b6d8a0c2e4f6b8d0a2c4e6f8b0d2a4c6e8f0b" />
-    </div>
+    <div class="card">
+      <div class="card-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+          <line x1="12" x2="12" y1="19" y2="22" />
+        </svg>
+        Microphone
+      </div>
 
-    <div class="row">
-      <label for="fakeGroupId">Fake groupId (64-char hex)</label>
-      <input type="text" id="fakeGroupId" placeholder="1f3a5c7e90b2d4f68a0c2e4b6d8f0a1c3e5b7d9f0a2c4e6b8d0f2a4c6e8b0d1f" />
+      <div class="row">
+        <label for="micMode">Mic disguise</label>
+        <select id="micMode">
+          <option value="auto">Auto (linked to camera)</option>
+          <option value="off">Off (video only)</option>
+          <option value="custom">Custom (pick a mic)</option>
+        </select>
+        <p class="hint" id="micModeHint">
+          Disguises the mic linked to the target camera so sites see a built-in combo.
+        </p>
+      </div>
+
+      <div class="mic-custom">
+        <div class="row">
+          <label for="micSelect">Target microphone</label>
+          <select id="micSelect">
+            <option value="">Select a microphone</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <div class="row-head">
+            <label for="fakeMicLabel">Fake mic name (label)</label>
+            <button id="newMicIdentity" type="button" class="id-btn" title="Generate a new microphone identity (label, deviceId, groupId)">
+              <span class="dice">&#127922;</span>
+              <span>New identity</span>
+            </button>
+          </div>
+          <input type="text" id="fakeMicLabel" placeholder="Internal Microphone (1bcf:2b95)" />
+          <button id="advancedMicToggle" type="button" class="advanced-toggle" aria-expanded="false">
+            <span class="chevron">&#9656;</span>
+            <span>Advanced IDs</span>
+          </button>
+
+          <div class="advanced-mic-ids">
+            <div class="row">
+              <label for="fakeMicDeviceId">Fake mic deviceId</label>
+              <input type="text" id="fakeMicDeviceId" placeholder="64-char hex" />
+            </div>
+            <div class="row">
+              <label for="fakeMicGroupId">Fake mic groupId</label>
+              <input type="text" id="fakeMicGroupId" placeholder="Match camera groupId if sites cross-check" />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="actions">
-      <button id="reset">Reset</button>
-      <button id="save">Save</button>
+      <button id="save">Save changes</button>
     </div>
     <div id="status"></div>
+
     <a class="gh-link" href="https://github.com/xViada/VCam-Bypass" target="_blank" rel="noopener">
-      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/>
       </svg>
       github.com/xViada/VCam-Bypass

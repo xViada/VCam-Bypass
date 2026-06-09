@@ -6,6 +6,8 @@ A Manifest V3 extension that makes **any virtual camera** (OBS Virtual
 Camera, ManyCam, DroidCam, iVCam, Snap Camera, etc.) appear to any website as a **normal
 physical webcam**, by rewriting the device info the browser exposes: `label`,
 `deviceId`, `groupId` and the data from `getSettings()` / `getCapabilities()`.
+It can do the same for the **microphone**, so a built-in webcam + mic combo
+stays consistent (see [Microphone](#microphone)).
 
 Everything happens inside the page context (JavaScript). It does not modify the
 operating system or the actual video.
@@ -21,7 +23,8 @@ operating system or the actual video.
   - `navigator.mediaDevices.getUserMedia()` (and the legacy variants): translates
     the fake `deviceId` in the constraints back to the real one before requesting
     the stream, then disguises the video tracks (`label`, `getSettings`,
-    `getCapabilities`).
+    `getCapabilities`). When mic disguise is on, audio devices/tracks are
+    rewritten the same way.
   - `MediaStreamTrack.prototype.getSettings` / `getCapabilities` to mask the real
     `deviceId` on any track.
 - `bridge.js` runs in the **ISOLATED world**, reads the config from
@@ -79,16 +82,22 @@ operating system or the actual video.
   stored in `storage`, just like Chrome's real `deviceId`/`groupId` (SHA-256),
   which stay stable. The **Reset** button generates new ones.
 
-## Limitations
+### Microphone
 
-- It only affects what the page's JavaScript sees; it does not change the device
-  at the operating-system level or the video content.
-- The target virtual camera must be installed and active for its device to exist.
-- Sites that compare the camera's `groupId` with the microphone's may require
-  tweaking the fake `groupId` (configurable in the popup).
-- Real `deviceId`s are only visible after camera permission is granted; the
-  `fake -> real` mapping is built when devices are enumerated with permission
-  already given.
+The **Mic disguise** dropdown controls how microphones are handled:
+
+- **Auto (linked to camera)** *(default)*: disguises the mic that belongs to the
+  same physical device as the target camera (shares its `groupId`). It reuses the
+  camera's fake `groupId` and a matching label (e.g.
+  `Microphone (Integrated Webcam) (1bcf:2b95)`) so sites see a real built-in
+  webcam + mic combo. If the camera has no linked mic (e.g. a virtual camera), it
+  falls back to the system's default microphone.
+- **Off (video only)**: leaves microphones untouched.
+- **Custom (pick a mic)**: disguise a specific microphone with your own fake name,
+  `deviceId` and `groupId`.
+
+Real mic names are detected together with cameras (the **Detect cameras** button
+and granted pages request mic permission too).
 
 ## Structure
 
@@ -97,7 +106,7 @@ operating system or the actual video.
 - `bridge.js` - bridge between `chrome.storage` and the page (ISOLATED world).
 - `background.js` - service worker that persists random deviceId/groupId and picks a random webcam name from usb.ids.
 - `popup.html` / `popup.js` - configuration UI.
-- `request.html` / `request.js` - page that requests camera permission and detects the real names.
+- `request.html` / `request.js` - page that requests camera and microphone permission and detects the real names.
 
 ## Disclaimer
 

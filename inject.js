@@ -4,335 +4,411 @@
   if (window.__vcamDisguiseInstalled) return;
   window.__vcamDisguiseInstalled = true;
 
-  function randomHex(len) {
-    var bytes = new Uint8Array(len / 2);
-    crypto.getRandomValues(bytes);
-    var out = "";
-    for (var i = 0; i < bytes.length; i++) {
-      out += bytes[i].toString(16).padStart(2, "0");
-    }
-    return out;
-  }
+  const randomHex = (len) =>
+    Array.from(crypto.getRandomValues(new Uint8Array(len / 2)), (b) =>
+      b.toString(16).padStart(2, "0")
+    ).join("");
 
-  // Live configuration: the patched functions read it dynamically, so the bridge
-  // can update it after document_start. The ids here are provisional until the
-  // persisted config arrives; the service worker generates and stores stable
-  // deviceId/groupId values per installation.
-  var config = {
+  // Read live by the patched functions, so the bridge can refresh it after
+  // document_start. IDs here are provisional until the stored config lands.
+  const config = {
     enabled: true,
     targetLabel: "",
     fakeLabel: "Integrated Webcam (1bcf:2b95)",
     fakeDeviceId: randomHex(64),
-    fakeGroupId: randomHex(64)
+    fakeGroupId: randomHex(64),
+    micMode: "auto",
+    targetMicLabel: "",
+    fakeMicLabel: "Internal Microphone (1bcf:2b95)",
+    fakeMicDeviceId: randomHex(64),
+    fakeMicGroupId: randomHex(64)
   };
 
-  // Known virtual camera name patterns, used for "Auto" target detection.
-  var VIRTUAL_CAM_RE = /(ivcam|e2esoft|obs|virtual\s*cam|virtualcam|snap\s*camera|snapcam|manycam|xsplit|droidcam|epoccam|nvidia\s*broadcast|streamlabs|camtwist|iriun|reincubate|camo|splitcam|youcam|altercam|webcamoid|akvcam|vtube|mmhmm|prism\s*live)/i;
+  const VIRTUAL_CAM_RE = /(ivcam|e2esoft|obs|virtual\s*cam|virtualcam|snap\s*camera|snapcam|manycam|xsplit|droidcam|epoccam|nvidia\s*broadcast|streamlabs|camtwist|iriun|reincubate|camo|splitcam|youcam|altercam|webcamoid|akvcam|vtube|mmhmm|prism\s*live)/i;
 
-  // Map fakeDeviceId -> realDeviceId, to translate constraints in getUserMedia.
-  var fakeToReal = Object.create(null);
-  // Set of real deviceIds that belong to the disguised camera (to match tracks).
-  var targetRealIds = Object.create(null);
+  const ID_RE = /^(.+?)\s*\(([0-9a-f]{4}:[0-9a-f]{4})\)\s*$/i;
 
-  // Listen for the config sent by the bridge (ISOLATED world).
-  window.addEventListener("vcam:config", function (ev) {
-    try {
-      var incoming = ev.detail;
-      if (incoming && typeof incoming === "object") {
-        for (var k in incoming) {
-          if (Object.prototype.hasOwnProperty.call(incoming, k)) {
-            config[k] = incoming[k];
-          }
-        }
-      }
-    } catch (e) {}
+  // fakeId -> realId, used to translate getUserMedia constraints back.
+  let fakeToReal = Object.create(null);
+  let fakeMicToReal = Object.create(null);
+  let targetRealIds = Object.create(null);
+  let targetMicRealIds = Object.create(null);
+  let targetMicRealGroupId = null;
+
+  window.addEventListener("vcam:config", (ev) => {
+    const incoming = ev.detail;
+    if (incoming && typeof incoming === "object") Object.assign(config, incoming);
   });
-  // Ask the bridge for the current config as early as possible.
   try {
     window.dispatchEvent(new CustomEvent("vcam:request-config"));
   } catch (e) {}
 
-  function isVirtualCam(label) {
-    return !!label && VIRTUAL_CAM_RE.test(label);
-  }
+  const eq = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase();
+  const isVirtualCam = (label) => !!label && VIRTUAL_CAM_RE.test(label);
 
-  // Whether a device label is the disguise target. If the user picked one in the
-  // dropdown (targetLabel) we match by exact label; otherwise "Auto" mode matches
-  // any known virtual camera.
+  // Auto mode matches any known virtual camera; otherwise match the picked label.
   function isTarget(label) {
     if (!label) return false;
-    var target = (config.targetLabel || "").trim();
-    if (target) {
-      return label.trim().toLowerCase() === target.toLowerCase();
+    const target = (config.targetLabel || "").trim();
+    return target ? eq(label, target) : isVirtualCam(label);
+  }
+
+  function micMode() {
+    const mode = (config.micMode || "auto").toLowerCase();
+    return mode === "off" || mode === "custom" ? mode : "auto";
+  }
+
+  function deriveMicLabel(webcamLabel) {
+    const m = (webcamLabel || config.fakeLabel || "").trim().match(ID_RE);
+    return m ? "Internal Microphone (" + m[2] + ")" : "Internal Microphone";
+  }
+
+  // Label for a mic on the same physical device as the camera, e.g.
+  // "Microphone (HD Pro Webcam C920) (046d:082d)".
+  function linkedMicLabel(webcamLabel) {
+    const label = (webcamLabel || config.fakeLabel || "").trim();
+    const m = label.match(ID_RE);
+    if (m) return "Microphone (" + m[1].trim() + ") (" + m[2] + ")";
+    return label ? "Microphone (" + label + ")" : "Microphone";
+  }
+
+  function micIdentity() {
+    const mode = micMode();
+    if (mode === "off") return null;
+    if (mode === "custom") {
+      return {
+        label: (config.fakeMicLabel || "").trim() || deriveMicLabel(config.fakeLabel),
+        deviceId: config.fakeMicDeviceId,
+        groupId: config.fakeMicGroupId || config.fakeGroupId
+      };
     }
-    return isVirtualCam(label);
+    // Auto: same physical device as the camera -> share its groupId.
+    return {
+      label: linkedMicLabel(config.fakeLabel),
+      deviceId: config.fakeMicDeviceId,
+      groupId: config.fakeGroupId
+    };
   }
 
-  if (!navigator.mediaDevices) {
-    return;
+  function isMicTargetLabel(label) {
+    const target = (config.targetMicLabel || "").trim();
+    return !!label && !!target && eq(label, target);
   }
 
-  var md = navigator.mediaDevices;
+  // "default" / "communications" are Chrome's fixed mirror ids, not real hashes.
+  const isPseudoId = (id) => id === "default" || id === "communications";
 
-  // --- enumerateDevices ---------------------------------------------------
-  var origEnumerate = md.enumerateDevices ? md.enumerateDevices.bind(md) : null;
+  // Real groupId of the mic to disguise, so the default/communications mirrors
+  // of the same device get covered too.
+  function pickMicGroup(devices, camTarget) {
+    const mics = devices.filter((d) => d.kind === "audioinput");
+
+    if (micMode() === "custom") {
+      const hit = mics.find((d) => isMicTargetLabel(d.label) && d.groupId);
+      return hit ? hit.groupId : null;
+    }
+
+    if (camTarget && camTarget.groupId && mics.some((d) => d.groupId === camTarget.groupId)) {
+      return camTarget.groupId;
+    }
+
+    const real = mics.find((d) => d.groupId && d.deviceId && !isPseudoId(d.deviceId));
+    if (real) return real.groupId;
+
+    const any = mics.find((d) => d.groupId);
+    return any ? any.groupId : null;
+  }
+
+  if (!navigator.mediaDevices) return;
+  const md = navigator.mediaDevices;
+
+  // --- enumerateDevices ---
+  const origEnumerate = md.enumerateDevices ? md.enumerateDevices.bind(md) : null;
 
   if (origEnumerate) {
     md.enumerateDevices = function () {
-      return origEnumerate().then(function (devices) {
+      return origEnumerate().then((devices) => {
         if (!config.enabled) return devices;
 
-        var result = [];
-        for (var i = 0; i < devices.length; i++) {
-          var dev = devices[i];
+        fakeToReal = Object.create(null);
+        fakeMicToReal = Object.create(null);
+        targetRealIds = Object.create(null);
+        targetMicRealIds = Object.create(null);
+        targetMicRealGroupId = null;
 
+        const camTarget =
+          devices.find((d) => d.kind === "videoinput" && isTarget(d.label)) || null;
+
+        const micId = micIdentity();
+        if (micId) targetMicRealGroupId = pickMicGroup(devices, camTarget);
+
+        return devices.map((dev) => {
           if (dev.kind === "videoinput" && isTarget(dev.label)) {
-            // Record mappings so we can translate constraints later.
             if (dev.deviceId) {
               fakeToReal[config.fakeDeviceId] = dev.deviceId;
               targetRealIds[dev.deviceId] = true;
             }
-            result.push(makeFakeDeviceInfo(dev));
-            continue;
+            return makeFakeDeviceInfo(dev, {
+              kind: "videoinput",
+              getLabel: () => config.fakeLabel,
+              getDeviceId: () => config.fakeDeviceId,
+              getGroupId: () => config.fakeGroupId
+            });
           }
 
-          result.push(dev);
-        }
-        return result;
+          if (
+            dev.kind === "audioinput" &&
+            micId &&
+            targetMicRealGroupId &&
+            dev.groupId === targetMicRealGroupId
+          ) {
+            if (dev.deviceId) {
+              targetMicRealIds[dev.deviceId] = true;
+              if (!isPseudoId(dev.deviceId)) fakeMicToReal[micId.deviceId] = dev.deviceId;
+            }
+            return makeFakeMicInfo(dev, micId);
+          }
+
+          return dev;
+        });
       });
     };
   }
 
-  // Builds an object that mimics a MediaDeviceInfo but with spoofed data.
-  function makeFakeDeviceInfo(realDevice) {
-    var fake = {
-      kind: "videoinput",
-      label: config.fakeLabel,
-      deviceId: config.fakeDeviceId,
-      groupId: config.fakeGroupId
-    };
-
-    var obj = {};
+  // Mimics a MediaDeviceInfo while exposing spoofed values.
+  function makeFakeDeviceInfo(realDevice, identity) {
+    const obj = {};
     Object.defineProperties(obj, {
-      kind: { enumerable: true, get: function () { return fake.kind; } },
-      label: { enumerable: true, get: function () { return config.fakeLabel; } },
-      deviceId: { enumerable: true, get: function () { return config.fakeDeviceId; } },
-      groupId: { enumerable: true, get: function () { return config.fakeGroupId; } }
+      kind: { enumerable: true, get: () => identity.kind },
+      label: { enumerable: true, get: () => identity.getLabel() },
+      deviceId: { enumerable: true, get: () => identity.getDeviceId() },
+      groupId: { enumerable: true, get: () => identity.getGroupId() }
     });
     Object.defineProperty(obj, "toJSON", {
-      enumerable: false,
-      value: function () {
-        return {
-          kind: "videoinput",
-          label: config.fakeLabel,
-          deviceId: config.fakeDeviceId,
-          groupId: config.fakeGroupId
-        };
-      }
+      value: () => ({
+        kind: identity.kind,
+        label: identity.getLabel(),
+        deviceId: identity.getDeviceId(),
+        groupId: identity.getGroupId()
+      })
     });
-
-    // Look right for instanceof / Object.prototype.toString checks.
     try {
       Object.setPrototypeOf(obj, Object.getPrototypeOf(realDevice));
     } catch (e) {}
-
     return obj;
   }
 
-  // --- Constraint translation (fake deviceId -> real) ---------------------
-  function translateConstraintValue(val) {
-    if (typeof val === "string") {
-      return fakeToReal[val] || val;
-    }
+  // Pseudo entries keep their fixed id and Chrome's "Default - " prefix so the
+  // list still looks native.
+  function makeFakeMicInfo(realDev, micId) {
+    const prefix =
+      realDev.deviceId === "default"
+        ? "Default - "
+        : realDev.deviceId === "communications"
+        ? "Communications - "
+        : "";
+    const devId = isPseudoId(realDev.deviceId) ? realDev.deviceId : micId.deviceId;
+    const label = prefix + micId.label;
+    return makeFakeDeviceInfo(realDev, {
+      kind: "audioinput",
+      getLabel: () => label,
+      getDeviceId: () => devId,
+      getGroupId: () => micId.groupId
+    });
+  }
+
+  // --- Constraint translation (fakeId -> real) ---
+  function translateConstraintValue(val, map) {
+    if (typeof val === "string") return map[val] || val;
     if (val && typeof val === "object") {
-      ["exact", "ideal"].forEach(function (key) {
+      ["exact", "ideal"].forEach((key) => {
         if (typeof val[key] === "string") {
-          val[key] = fakeToReal[val[key]] || val[key];
+          val[key] = map[val[key]] || val[key];
         } else if (Array.isArray(val[key])) {
-          val[key] = val[key].map(function (v) {
-            return typeof v === "string" ? fakeToReal[v] || v : v;
-          });
+          val[key] = val[key].map((v) => (typeof v === "string" ? map[v] || v : v));
         }
       });
     }
     return val;
   }
 
+  function stripFakeGroupId(obj, fakeGroupId) {
+    if (!obj || typeof obj !== "object" || !("groupId" in obj)) return;
+    const g = obj.groupId;
+    if (g === fakeGroupId || (g && (g.exact === fakeGroupId || g.ideal === fakeGroupId))) {
+      delete obj.groupId;
+    }
+  }
+
   function translateConstraints(constraints) {
     if (!constraints || typeof constraints !== "object") return constraints;
     try {
-      if (constraints.video && typeof constraints.video === "object") {
-        if ("deviceId" in constraints.video) {
-          constraints.video.deviceId = translateConstraintValue(
-            constraints.video.deviceId
-          );
+      const video = constraints.video;
+      if (video && typeof video === "object") {
+        if ("deviceId" in video) {
+          video.deviceId = translateConstraintValue(video.deviceId, fakeToReal);
         }
-        if ("groupId" in constraints.video) {
-          // We do not translate the real groupId; drop the fake one so the
-          // request does not break.
-          var g = constraints.video.groupId;
-          if (
-            g === config.fakeGroupId ||
-            (g && (g.exact === config.fakeGroupId || g.ideal === config.fakeGroupId))
-          ) {
-            delete constraints.video.groupId;
-          }
+        stripFakeGroupId(video, config.fakeGroupId);
+      }
+
+      const micId = micIdentity();
+      const audio = constraints.audio;
+      if (micId && audio && typeof audio === "object") {
+        if ("deviceId" in audio) {
+          audio.deviceId = translateConstraintValue(audio.deviceId, fakeMicToReal);
         }
+        stripFakeGroupId(audio, micId.groupId);
       }
     } catch (e) {}
     return constraints;
   }
 
-  // --- getUserMedia -------------------------------------------------------
+  // --- getUserMedia ---
   function patchStreamTracks(stream) {
     try {
-      var tracks = stream.getVideoTracks ? stream.getVideoTracks() : [];
-      for (var i = 0; i < tracks.length; i++) {
-        disguiseTrack(tracks[i]);
-      }
+      (stream.getTracks ? stream.getTracks() : []).forEach(disguiseTrack);
     } catch (e) {}
     return stream;
   }
 
+  function trackDeviceId(track) {
+    try {
+      const s = track.getSettings ? track.getSettings() : null;
+      return s && s.deviceId ? s.deviceId : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   function disguiseTrack(track) {
     if (!track || track.__vcamDisguised) return;
+    const realDeviceId = trackDeviceId(track);
+    if (track.kind === "video") disguiseVideoTrack(track, realDeviceId);
+    else if (track.kind === "audio") disguiseAudioTrack(track, realDeviceId);
+  }
 
-    var realDeviceId = null;
-    try {
-      var s = track.getSettings ? track.getSettings() : null;
-      if (s && s.deviceId) realDeviceId = s.deviceId;
-    } catch (e) {}
-
-    var matchesByLabel = isTarget(track.label);
-    var matchesById = realDeviceId && targetRealIds[realDeviceId];
-
-    if (!matchesByLabel && !matchesById) return;
+  function disguiseVideoTrack(track, realDeviceId) {
+    if (!isTarget(track.label) && !(realDeviceId && targetRealIds[realDeviceId])) return;
     track.__vcamDisguised = true;
+    applyTrackDisguise(track, {
+      label: config.fakeLabel,
+      deviceId: config.fakeDeviceId,
+      groupId: config.fakeGroupId
+    });
+  }
 
-    // label
+  function disguiseAudioTrack(track, realDeviceId) {
+    const micId = micIdentity();
+    if (!micId) return;
+
+    let matched =
+      (micMode() === "custom" && isMicTargetLabel(track.label)) ||
+      !!(realDeviceId && targetMicRealIds[realDeviceId]);
+
+    if (!matched && targetMicRealGroupId) {
+      try {
+        const s = track.getSettings ? track.getSettings() : null;
+        if (s && s.groupId === targetMicRealGroupId) {
+          matched = true;
+          if (s.deviceId) {
+            targetMicRealIds[s.deviceId] = true;
+            if (!isPseudoId(s.deviceId)) fakeMicToReal[micId.deviceId] = s.deviceId;
+          }
+        }
+      } catch (e) {}
+    }
+
+    if (!matched) return;
+    track.__vcamDisguised = true;
+    applyTrackDisguise(track, micId);
+  }
+
+  function spoofOutput(out, identity) {
+    if (out && typeof out === "object") {
+      if ("deviceId" in out) out.deviceId = identity.deviceId;
+      if ("groupId" in out) out.groupId = identity.groupId;
+    }
+    return out;
+  }
+
+  function applyTrackDisguise(track, identity) {
     try {
       Object.defineProperty(track, "label", {
         configurable: true,
         enumerable: true,
-        get: function () { return config.fakeLabel; }
+        get: () => identity.label
       });
     } catch (e) {}
 
-    // getSettings
-    if (typeof track.getSettings === "function") {
-      var origSettings = track.getSettings.bind(track);
-      track.getSettings = function () {
-        var out = origSettings();
-        if (out && typeof out === "object") {
-          if ("deviceId" in out) out.deviceId = config.fakeDeviceId;
-          if ("groupId" in out) out.groupId = config.fakeGroupId;
-        }
-        return out;
-      };
-    }
-
-    // getCapabilities
-    if (typeof track.getCapabilities === "function") {
-      var origCaps = track.getCapabilities.bind(track);
-      track.getCapabilities = function () {
-        var out = origCaps();
-        if (out && typeof out === "object") {
-          if ("deviceId" in out) out.deviceId = config.fakeDeviceId;
-          if ("groupId" in out) out.groupId = config.fakeGroupId;
-        }
-        return out;
-      };
-    }
+    ["getSettings", "getCapabilities"].forEach((name) => {
+      if (typeof track[name] !== "function") return;
+      const orig = track[name].bind(track);
+      track[name] = () => spoofOutput(orig(), identity);
+    });
   }
 
   function wrapGetUserMedia(origFn, thisArg) {
     return function (constraints) {
-      if (!config.enabled) {
-        return origFn.call(thisArg, constraints);
-      }
-      var translated = translateConstraints(constraints);
-      var p = origFn.call(thisArg, translated);
-      if (p && typeof p.then === "function") {
-        return p.then(function (stream) {
-          return patchStreamTracks(stream);
-        });
-      }
-      return p;
+      if (!config.enabled) return origFn.call(thisArg, constraints);
+      const p = origFn.call(thisArg, translateConstraints(constraints));
+      return p && typeof p.then === "function" ? p.then(patchStreamTracks) : p;
     };
   }
 
-  // Modern promise-based API.
   if (md.getUserMedia) {
     md.getUserMedia = wrapGetUserMedia(md.getUserMedia.bind(md), md);
   }
 
-  // Legacy callback-based API (some old sites).
+  // Legacy callback API still used by a few old sites.
   function patchLegacy(name) {
-    var orig = navigator[name];
+    const orig = navigator[name];
     if (typeof orig !== "function") return;
     navigator[name] = function (constraints, success, error) {
-      if (!config.enabled) {
-        return orig.call(navigator, constraints, success, error);
-      }
-      var translated = translateConstraints(constraints);
+      if (!config.enabled) return orig.call(navigator, constraints, success, error);
       return orig.call(
         navigator,
-        translated,
-        function (stream) {
-          try { patchStreamTracks(stream); } catch (e) {}
+        translateConstraints(constraints),
+        (stream) => {
+          patchStreamTracks(stream);
           if (typeof success === "function") success(stream);
         },
         error
       );
     };
   }
-  patchLegacy("getUserMedia");
-  patchLegacy("webkitGetUserMedia");
-  patchLegacy("mozGetUserMedia");
+  ["getUserMedia", "webkitGetUserMedia", "mozGetUserMedia"].forEach(patchLegacy);
 
-  // --- Global video track masking ----------------------------------------
-  // Some pages read settings/capabilities from the prototype without going
-  // through our stream; cover those cases at the prototype level.
+  // --- Prototype-level masking ---
+  // Some pages read settings/capabilities straight off the prototype.
   try {
-    var TrackProto = window.MediaStreamTrack && window.MediaStreamTrack.prototype;
+    const TrackProto = window.MediaStreamTrack && window.MediaStreamTrack.prototype;
     if (TrackProto) {
-      var protoGetSettings = TrackProto.getSettings;
-      if (typeof protoGetSettings === "function") {
-        TrackProto.getSettings = function () {
-          var out = protoGetSettings.apply(this, arguments);
-          try {
-            if (
-              config.enabled &&
-              out &&
-              out.deviceId &&
-              targetRealIds[out.deviceId]
-            ) {
-              out.deviceId = config.fakeDeviceId;
-              if ("groupId" in out) out.groupId = config.fakeGroupId;
-            }
-          } catch (e) {}
+      const maskTrackOutput = (out) => {
+        if (!config.enabled || !out || !out.deviceId) return out;
+        if (targetRealIds[out.deviceId]) {
+          out.deviceId = config.fakeDeviceId;
+          if ("groupId" in out) out.groupId = config.fakeGroupId;
           return out;
-        };
-      }
+        }
+        const micId = micIdentity();
+        if (micId && targetMicRealIds[out.deviceId]) {
+          out.deviceId = micId.deviceId;
+          if ("groupId" in out) out.groupId = micId.groupId;
+        }
+        return out;
+      };
 
-      var protoGetCaps = TrackProto.getCapabilities;
-      if (typeof protoGetCaps === "function") {
-        TrackProto.getCapabilities = function () {
-          var out = protoGetCaps.apply(this, arguments);
+      ["getSettings", "getCapabilities"].forEach((name) => {
+        const orig = TrackProto[name];
+        if (typeof orig !== "function") return;
+        TrackProto[name] = function () {
+          const out = orig.apply(this, arguments);
           try {
-            if (
-              config.enabled &&
-              out &&
-              out.deviceId &&
-              targetRealIds[out.deviceId]
-            ) {
-              out.deviceId = config.fakeDeviceId;
-              if ("groupId" in out) out.groupId = config.fakeGroupId;
-            }
+            maskTrackOutput(out);
           } catch (e) {}
           return out;
         };
-      }
+      });
     }
   } catch (e) {}
 })();
