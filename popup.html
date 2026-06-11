@@ -70,6 +70,52 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
+      .header-update {
+        display: none;
+        align-items: center;
+        gap: 5px;
+        width: fit-content;
+        max-width: 100%;
+        margin: 2px 0 0;
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.005em;
+        color: var(--accent);
+        text-decoration: none;
+        white-space: nowrap;
+        overflow: hidden;
+        cursor: pointer;
+        transition: color 0.15s;
+      }
+      .header-update svg {
+        flex: 0 0 auto;
+        animation: header-update-bob 2s ease-in-out infinite;
+      }
+      @keyframes header-update-bob {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(1.5px);
+        }
+      }
+      .header-update span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .header-update:hover {
+        color: var(--accent-hover);
+      }
+      .header-update:hover span {
+        text-decoration: underline;
+      }
+      body.update-available .header-text p {
+        display: none;
+      }
+      body.update-available .header-update {
+        display: flex;
+      }
 
       /* ---------- Toggle switch ---------- */
       .switch {
@@ -344,6 +390,117 @@
       .gh-link svg {
         flex-shrink: 0;
       }
+
+      /* ---------- Update modal (popup-in-popup) ---------- */
+      .update-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: rgba(8, 9, 12, 0.66);
+        backdrop-filter: blur(2px);
+        animation: update-overlay-in 0.15s ease-out;
+      }
+      body.update-modal-open .update-overlay {
+        display: flex;
+      }
+      @keyframes update-overlay-in {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      .update-modal {
+        width: 100%;
+        max-width: 264px;
+        padding: 16px;
+        border: 1px solid var(--border-strong);
+        border-radius: 11px;
+        background: var(--surface);
+        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55);
+        text-align: center;
+        animation: update-modal-in 0.18s ease-out;
+      }
+      @keyframes update-modal-in {
+        from {
+          opacity: 0;
+          transform: translateY(8px) scale(0.97);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      .update-modal-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        margin: 0 auto 10px;
+        border-radius: 50%;
+        background: rgba(245, 158, 11, 0.16);
+        font-size: 18px;
+        line-height: 1;
+      }
+      .update-modal-title {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 5px;
+        color: var(--text);
+      }
+      .update-modal-text {
+        font-size: 11.5px;
+        color: var(--text-dim);
+        margin: 0 0 14px;
+        line-height: 1.45;
+      }
+      .update-modal-text b {
+        color: #fbbf24;
+        font-weight: 600;
+      }
+      .update-modal-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .update-modal-update,
+      .update-modal-later {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 10px;
+        border-radius: 7px;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: inherit;
+        line-height: 1.4;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+      }
+      .update-modal-update {
+        border: 1px solid var(--accent);
+        background: var(--accent);
+        color: #fff;
+      }
+      .update-modal-update:hover {
+        background: var(--accent-hover);
+        border-color: var(--accent-hover);
+      }
+      .update-modal-later {
+        border: 1px solid var(--border-strong);
+        background: var(--surface-2);
+        color: var(--text-dim);
+      }
+      .update-modal-later:hover {
+        color: var(--text);
+        background: #2b2f39;
+      }
     </style>
   </head>
   <body>
@@ -352,6 +509,14 @@
       <div class="header-text">
         <h1>VCam Bypass</h1>
         <p>Rewrites the device info exposed</p>
+        <a id="headerUpdate" class="header-update" href="#" title="A new update is available - click to get it">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v12" />
+            <path d="m7 11 5 5 5-5" />
+            <path d="M5 21h14" />
+          </svg>
+          <span id="headerUpdateText">New update available</span>
+        </a>
       </div>
       <label class="switch" title="Enable / disable disguise">
         <input type="checkbox" id="enabled" />
@@ -472,6 +637,22 @@
       </svg>
       github.com/xViada/VCam-Bypass
     </a>
+
+    <div id="updateOverlay" class="update-overlay" role="dialog" aria-modal="true" aria-labelledby="updateModalTitle">
+      <div class="update-modal">
+        <div class="update-modal-icon" aria-hidden="true">&#9888;</div>
+        <h2 class="update-modal-title" id="updateModalTitle">Update available</h2>
+        <p class="update-modal-text" id="updateModalText"></p>
+        <div class="update-modal-actions">
+          <button id="updateModalLater" type="button" class="update-modal-later">
+            Later
+          </button>
+          <button id="updateModalUpdate" type="button" class="update-modal-update">
+            Update
+          </button>
+        </div>
+      </div>
+    </div>
 
     <script src="popup.js"></script>
   </body>

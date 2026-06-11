@@ -43,6 +43,17 @@
   const detectBtn = $("detect");
   const statusEl = $("status");
   const micModeHint = $("micModeHint");
+  const updateModalText = $("updateModalText");
+  const updateModalUpdate = $("updateModalUpdate");
+  const updateModalLater = $("updateModalLater");
+  const headerUpdate = $("headerUpdate");
+  const headerUpdateText = $("headerUpdateText");
+  let updateReleaseUrl = "https://github.com/xViada/VCam-Bypass/releases/latest";
+
+  function openReleasePage() {
+    if (chrome.tabs && chrome.tabs.create) chrome.tabs.create({ url: updateReleaseUrl });
+    else window.open(updateReleaseUrl, "_blank");
+  }
 
   const MIC_HINTS = {
     auto: "Disguises the mic linked to the target camera so sites see a built-in combo.",
@@ -122,6 +133,40 @@
     micModeHint.textContent = MIC_HINTS[mode] || MIC_HINTS.auto;
   }
 
+  function dismissUpdateModal() {
+    chrome.storage.local.get({ __updateCheck: null }, (stored) => {
+      const latest = stored.__updateCheck && stored.__updateCheck.latestVersion;
+      document.body.classList.remove("update-modal-open");
+      if (latest) chrome.storage.local.set({ __updateBannerDismissed: latest });
+    });
+  }
+
+  function applyUpdateModal(updateCheck, dismissedVersion) {
+    const info = updateCheck || {};
+    const available = !!info.updateAvailable && !!info.latestVersion;
+    const modalOpen = available && info.latestVersion !== dismissedVersion;
+
+    document.body.classList.toggle("update-available", available);
+    document.body.classList.toggle("update-modal-open", modalOpen);
+
+    if (!available) return;
+
+    updateModalText.innerHTML =
+      "A <b>new version</b> of VCam Bypass is ready. Update now to get the latest improvements and fixes.";
+    headerUpdateText.textContent = "New update available";
+    updateReleaseUrl =
+      info.releaseUrl || "https://github.com/xViada/VCam-Bypass/releases/latest";
+  }
+
+  function loadUpdateModal() {
+    chrome.storage.local.get(
+      { __updateCheck: null, __updateBannerDismissed: "" },
+      (stored) => {
+        applyUpdateModal(stored.__updateCheck, stored.__updateBannerDismissed || "");
+      }
+    );
+  }
+
   function applyToForm(cfg) {
     fields.enabled.checked = !!cfg.enabled;
     fields.fakeLabel.value = cfg.fakeLabel || "";
@@ -155,6 +200,20 @@
     applyToForm(Object.assign({}, DEFAULTS, stored || {}));
   });
 
+  loadUpdateModal();
+
+  updateModalUpdate.addEventListener("click", () => {
+    openReleasePage();
+    dismissUpdateModal();
+  });
+
+  headerUpdate.addEventListener("click", (e) => {
+    e.preventDefault();
+    openReleasePage();
+  });
+
+  updateModalLater.addEventListener("click", dismissUpdateModal);
+
   detectBtn.addEventListener("click", () => {
     const url = chrome.runtime.getURL("request.html");
     if (chrome.tabs && chrome.tabs.create) chrome.tabs.create({ url });
@@ -166,6 +225,14 @@
     if (area !== "local") return;
     if (changes.__availableCameras) populateCameras(fields.cameraSelect.value);
     if (changes.__availableMics) populateMics(fields.micSelect.value);
+    if (changes.__updateCheck || changes.__updateBannerDismissed) {
+      chrome.storage.local.get(
+        { __updateCheck: null, __updateBannerDismissed: "" },
+        (stored) => {
+          applyUpdateModal(stored.__updateCheck, stored.__updateBannerDismissed || "");
+        }
+      );
+    }
   });
 
   fields.enabled.addEventListener("change", () => {
