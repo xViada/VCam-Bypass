@@ -5,7 +5,10 @@
 A Manifest V3 extension that makes **any virtual camera** (OBS Virtual
 Camera, ManyCam, DroidCam, iVCam, Snap Camera, etc.) appear to any website as a **normal
 physical webcam**, by rewriting the device info the browser exposes: `label`,
-`deviceId`, `groupId` and the data from `getSettings()` / `getCapabilities()`.
+`deviceId`, `groupId` and the full `getSettings()` / `getCapabilities()` surface.
+It emulates a **real webcam model** (resolution, frame rate, facing mode, focus,
+exposure, white balance and image controls) so a virtual camera doesn't give
+itself away by exposing none of the hardware controls a physical camera has.
 It can do the same for the **microphone**, so a built-in webcam + mic combo
 stays consistent (see [Microphone](#microphone)).
 
@@ -22,17 +25,23 @@ operating system or the actual video.
     mode.
   - `navigator.mediaDevices.getUserMedia()` (and the legacy variants): translates
     the fake `deviceId` in the constraints back to the real one before requesting
-    the stream, then disguises the video tracks (`label`, `getSettings`,
-    `getCapabilities`). When mic disguise is on, audio devices/tracks are
+    the stream, then disguises the video tracks: it spoofs the `label` and
+    synthesizes a full physical-camera `getSettings()` / `getCapabilities()` from
+    the selected model profile, while keeping the real (canvas-verifiable)
+    resolution and frame rate. When mic disguise is on, audio devices/tracks are
     rewritten the same way.
   - `MediaStreamTrack.prototype.getSettings` / `getCapabilities` to mask the real
-    `deviceId` on any track.
+    `deviceId` (and rebuild the camera surface) on any track.
+- `profiles.js` is loaded in the **MAIN world** right before `inject.js` (and
+  reused by the popup and service worker). It holds the capability profiles for
+  real webcam models and builds the spoofed `getCapabilities()` / `getSettings()`
+  objects.
 - `bridge.js` runs in the **ISOLATED world**, reads the config from
   `chrome.storage.local` and sends it to `inject.js` via a `CustomEvent`. It also
   collects the real webcam names visible on the page and stores them for the popup.
 - `background.js` is a service worker that, on install, generates and persists
-  random, stable `deviceId`/`groupId` values and picks a random webcam name from
-  the usb.ids list (with a fallback default).
+  random, stable `deviceId`/`groupId` values, seeds the default capability profile
+  and picks a random webcam name from the usb.ids list (with a fallback default).
 - `popup.html` / `popup.js` provide the configuration UI.
 - `request.html` / `request.js` is a page that requests camera permission to read
   the real camera names.
@@ -45,7 +54,7 @@ operating system or the actual video.
 3. Enable **Developer mode** (top right).
 4. Click **Load unpacked** and select this project folder.
 5. (Optional) Pin the extension and open its popup to pick the target webcam,
-   or adjust the fake name, `deviceId`, and `groupId`.
+   choose the emulated model, or fine-tune the name, IDs and capabilities.
 
 ## Usage
 
@@ -71,16 +80,26 @@ operating system or the actual video.
 
 ![Camera permisions popup](docs/images/permissions.png)   
 
-- **Fake name (label)**: the name sites will see, in Chrome's real
-  `name (vendor:product)` format. On install (and on **Reset**) it is picked
-  randomly from the webcam entries of the
-  [usb.ids](http://www.linux-usb.org/usb.ids) list (downloaded and parsed by
-  `background.js`, keeping only webcam-like devices). If the download or parsing
-  fails, it falls back to `Integrated Webcam (1bcf:2b95)`.
-- **Fake deviceId** and **Fake groupId**: the identifiers that get exposed. They
-  are generated **randomly (64-char hex)** on install (via `background.js`) and
-  stored in `storage`, just like Chrome's real `deviceId`/`groupId` (SHA-256),
-  which stay stable. The **Reset** button generates new ones.
+- **Emulated model (capabilities)**: which real webcam to emulate (Logitech
+  C920 / C922 / BRIO, Microsoft LifeCam, an integrated laptop cam, or a generic
+  webcam). This defines the `getCapabilities()` / `getSettings()` a site sees —
+  resolution, frame rate, facing mode, focus, exposure, white balance and image
+  controls. Your stream's actual resolution and frame rate are kept as-is so they
+  stay consistent if a site measures them from the video.
+- **New identity**: generates a coherent identity — a real model with a matching
+  name and fresh `deviceId` / `groupId`.
+- **Advanced capabilities**: a collapsible section to edit everything by hand:
+  the fake **name (label)**, **deviceId**, **groupId**, and every capability
+  (facing mode, max resolution, max frame rate, white-balance / exposure / focus
+  modes, and each image control as min / max / step / default). Editing any value
+  switches the model to **Custom**; ranges are validated and clamped on save.
+
+The fake **name** uses Chrome's real `name (vendor:product)` format. On a fresh
+install `background.js` picks one randomly from the webcam entries of the
+[usb.ids](http://www.linux-usb.org/usb.ids) list (falling back to
+`Integrated Webcam (1bcf:2b95)`), while **New identity** uses the emulated
+model's name. The **deviceId** / **groupId** are random 64-char hex generated on
+install and kept stable, just like Chrome's real SHA-256 ids.
 
 ### Microphone
 
@@ -103,8 +122,9 @@ and granted pages request mic permission too).
 
 - `manifest.json` - MV3 definition and content-script registration.
 - `inject.js` - patches the mediaDevices APIs (MAIN world).
+- `profiles.js` - capability profiles for real webcam models and the builders for the spoofed getSettings/getCapabilities (shared by inject, popup and background).
 - `bridge.js` - bridge between `chrome.storage` and the page (ISOLATED world).
-- `background.js` - service worker that persists random deviceId/groupId and picks a random webcam name from usb.ids.
+- `background.js` - service worker that persists random deviceId/groupId, seeds the default capability profile and picks a random webcam name from usb.ids.
 - `popup.html` / `popup.js` - configuration UI.
 - `request.html` / `request.js` - page that requests camera and microphone permission and detects the real names.
 
