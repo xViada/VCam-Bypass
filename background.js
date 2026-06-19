@@ -1,5 +1,7 @@
 "use strict";
 
+importScripts("profiles.js");
+
 // Used when no name can be picked from the usb.ids list.
 const DEFAULT_LABEL = "Integrated Webcam (1bcf:2b95)";
 
@@ -86,19 +88,25 @@ function pickWebcamName() {
 
 // Fills only the missing identity fields so values stay stable across sessions.
 function ensureDefaults() {
-  chrome.storage.local.get(["fakeDeviceId", "fakeGroupId", "fakeLabel"], (stored) => {
-    const patch = {};
-    if (!stored || !stored.fakeDeviceId) patch.fakeDeviceId = randomHex(64);
-    if (!stored || !stored.fakeGroupId) patch.fakeGroupId = randomHex(64);
+  chrome.storage.local.get(
+    ["fakeDeviceId", "fakeGroupId", "fakeLabel", "cameraProfile"],
+    (stored) => {
+      const patch = {};
+      if (!stored || !stored.fakeDeviceId) patch.fakeDeviceId = randomHex(64);
+      if (!stored || !stored.fakeGroupId) patch.fakeGroupId = randomHex(64);
+      if (!stored || !stored.cameraProfile || stored.cameraProfile === "auto") {
+        patch.cameraProfile = "generic";
+      }
 
-    const labelPromise =
-      !stored || !stored.fakeLabel ? pickWebcamName() : Promise.resolve(null);
+      const labelPromise =
+        !stored || !stored.fakeLabel ? pickWebcamName() : Promise.resolve(null);
 
-    labelPromise.then((name) => {
-      if (name) patch.fakeLabel = name;
-      if (Object.keys(patch).length) chrome.storage.local.set(patch);
-    });
-  });
+      labelPromise.then((name) => {
+        if (name) patch.fakeLabel = name;
+        if (Object.keys(patch).length) chrome.storage.local.set(patch);
+      });
+    }
+  );
 }
 
 const GITHUB_REPO = "xViada/VCam-Bypass";
@@ -177,6 +185,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg && msg.type === "randomizeName") {
     pickWebcamName().then((name) => sendResponse({ name }));
     return true;
+  }
+  // A coherent camera identity: a real model whose label and capability
+  // profile match each other.
+  if (msg && msg.type === "newCameraIdentity") {
+    const p = self.__vcamProfiles.pickRandom();
+    sendResponse({ name: p.label || DEFAULT_LABEL, profile: p.id });
+    return false;
   }
   if (msg && msg.type === "refreshWebcamList") {
     ensureWebcamList(true).then((list) => sendResponse({ count: list.length }));

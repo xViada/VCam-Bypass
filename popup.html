@@ -198,6 +198,7 @@
 
       /* ---------- Inputs ---------- */
       input[type="text"],
+      input[type="number"],
       select {
         width: 100%;
         padding: 8px 9px;
@@ -209,10 +210,12 @@
         font-family: inherit;
         transition: border-color 0.15s, box-shadow 0.15s;
       }
-      input[type="text"]::placeholder {
+      input[type="text"]::placeholder,
+      input[type="number"]::placeholder {
         color: #5a606c;
       }
       input[type="text"]:focus,
+      input[type="number"]:focus,
       select:focus {
         outline: none;
         border-color: var(--accent);
@@ -327,6 +330,66 @@
         display: block;
       }
       body.advanced-mic-ids-visible .advanced-mic-ids {
+        display: block;
+      }
+
+      /* ---------- Capabilities editor ---------- */
+      .cap-section {
+        font-size: 9.5px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--text-faint);
+        margin: 14px 0 7px;
+        padding-top: 9px;
+        border-top: 1px dashed var(--border);
+      }
+      .cap-grid3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 7px;
+      }
+      .cap-grid3 label {
+        font-size: 10px;
+      }
+      .chk {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 11.5px;
+        color: var(--text-dim);
+        margin-bottom: 7px;
+        cursor: pointer;
+      }
+      .chk input {
+        width: 14px;
+        height: 14px;
+        accent-color: var(--accent);
+        cursor: pointer;
+        flex: 0 0 auto;
+      }
+      .cap-ctrl {
+        margin-bottom: 9px;
+      }
+      .cap-ctrl > label {
+        font-size: 10.5px;
+        color: var(--text-dim);
+      }
+      .cap-ctrl-fields {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 5px;
+      }
+      .cap-ctrl-fields input[type="number"] {
+        padding: 6px 4px;
+        font-size: 11px;
+        text-align: center;
+      }
+      /* Hide the focus-distance row until autofocus is enabled. */
+      .cap-ctrl#capFocusRow {
+        display: none;
+      }
+      body.cap-autofocus-visible .cap-ctrl#capFocusRow {
         display: block;
       }
 
@@ -543,27 +606,72 @@
 
       <div class="row">
         <div class="row-head">
-          <label for="fakeLabel">Fake name (label)</label>
-          <button id="newCamIdentity" type="button" class="id-btn" title="Generate a new camera identity (label, deviceId, groupId)">
+          <label for="cameraProfile">Emulated model (capabilities)</label>
+          <button id="newCamIdentity" type="button" class="id-btn" title="Generate a new camera identity (model, name, deviceId, groupId)">
             <span class="dice">&#127922;</span>
             <span>New identity</span>
           </button>
         </div>
-        <input type="text" id="fakeLabel" placeholder="Integrated Webcam (1bcf:2b95)" />
+        <select id="cameraProfile"></select>
         <button id="advancedToggle" type="button" class="advanced-toggle" aria-expanded="false">
           <span class="chevron">&#9656;</span>
-          <span>Advanced IDs</span>
+          <span>Advanced capabilities</span>
         </button>
 
         <div class="advanced-ids">
           <div class="row">
-            <label for="fakeDeviceId">Fake deviceId (64-char hex)</label>
+            <label for="fakeLabel">Name (label)</label>
+            <input type="text" id="fakeLabel" placeholder="Integrated Webcam (1bcf:2b95)" />
+          </div>
+          <div class="row">
+            <label for="fakeDeviceId">deviceId (64-char hex)</label>
             <input type="text" id="fakeDeviceId" placeholder="8b5e0d3a9c1f7e2b4d6a8c0f2e4b6d8a0c2e4f6b8d0a2c4e6f8b0d2a4c6e8f0b" />
           </div>
           <div class="row">
-            <label for="fakeGroupId">Fake groupId (64-char hex)</label>
+            <label for="fakeGroupId">groupId (64-char hex)</label>
             <input type="text" id="fakeGroupId" placeholder="1f3a5c7e90b2d4f68a0c2e4b6d8f0a1c3e5b7d9f0a2c4e6b8d0f2a4c6e8b0d1f" />
           </div>
+
+          <div class="cap-section">Format</div>
+          <div class="row">
+            <label for="capFacing">Facing mode</label>
+            <select id="capFacing">
+              <option value="">External / USB (no facing)</option>
+              <option value="user">Front (integrated)</option>
+              <option value="environment">Rear</option>
+            </select>
+          </div>
+          <div class="cap-grid3">
+            <div>
+              <label for="capMaxWidth">Max width</label>
+              <input type="number" id="capMaxWidth" min="1" step="1" placeholder="1920" />
+            </div>
+            <div>
+              <label for="capMaxHeight">Max height</label>
+              <input type="number" id="capMaxHeight" min="1" step="1" placeholder="1080" />
+            </div>
+            <div>
+              <label for="capMaxFrameRate">Max FPS</label>
+              <input type="number" id="capMaxFrameRate" min="1" step="1" placeholder="30" />
+            </div>
+          </div>
+
+          <div class="cap-section">Modes</div>
+          <label class="chk"><input type="checkbox" id="capWbManual" /> Manual white balance</label>
+          <label class="chk"><input type="checkbox" id="capExpManual" /> Manual exposure</label>
+          <label class="chk"><input type="checkbox" id="capAutofocus" /> Autofocus (focus control)</label>
+          <div class="cap-ctrl" id="capFocusRow">
+            <label>Focus distance (min / max / step / default)</label>
+            <div class="cap-ctrl-fields">
+              <input type="number" id="capFocusMin" placeholder="min" />
+              <input type="number" id="capFocusMax" placeholder="max" />
+              <input type="number" id="capFocusStep" placeholder="step" />
+              <input type="number" id="capFocusDef" placeholder="def" />
+            </div>
+          </div>
+
+          <div class="cap-section">Image controls (min / max / step / default)</div>
+          <div id="capControls"></div>
         </div>
       </div>
     </div>
@@ -654,6 +762,7 @@
       </div>
     </div>
 
+    <script src="profiles.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

@@ -13,6 +13,8 @@
     fakeLabel: "Integrated Webcam (1bcf:2b95)",
     fakeDeviceId: randomHex(64),
     fakeGroupId: randomHex(64),
+    cameraProfile: "generic",
+    cameraCaps: null,
     micMode: "auto",
     targetMicLabel: "",
     fakeMicLabel: "Internal Microphone (1bcf:2b95)",

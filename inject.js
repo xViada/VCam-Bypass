@@ -17,6 +17,8 @@
     fakeLabel: "Integrated Webcam (1bcf:2b95)",
     fakeDeviceId: randomHex(64),
     fakeGroupId: randomHex(64),
+    cameraProfile: "generic",
+    cameraCaps: null,
     micMode: "auto",
     targetMicLabel: "",
     fakeMicLabel: "Internal Microphone (1bcf:2b95)",
@@ -25,6 +27,34 @@
   };
 
   const VIRTUAL_CAM_RE = /(ivcam|e2esoft|obs|virtual\s*cam|virtualcam|snap\s*camera|snapcam|manycam|xsplit|droidcam|epoccam|nvidia\s*broadcast|streamlabs|camtwist|iriun|reincubate|camo|splitcam|youcam|altercam|webcamoid|akvcam|vtube|mmhmm|prism\s*live)/i;
+
+  // Camera capability profiles, injected just before us in the MAIN world. We
+  // pull the reference and remove the global so the page can't read it back.
+  const VP = (function () {
+    try {
+      const api = window.__vcamProfiles || null;
+      try {
+        delete window.__vcamProfiles;
+      } catch (e) {}
+      return api;
+    } catch (e) {
+      return null;
+    }
+  })();
+
+  // The capability profile to present for the disguised camera. A fully
+  // custom capabilities object (edited in the popup) wins over the presets.
+  function resolveCameraProfile() {
+    if (config.cameraCaps && typeof config.cameraCaps === "object") {
+      return config.cameraCaps;
+    }
+    if (!VP) return null;
+    try {
+      return VP.resolve(config.cameraProfile);
+    } catch (e) {
+      return null;
+    }
+  }
 
   const ID_RE = /^(.+?)\s*\(([0-9a-f]{4}:[0-9a-f]{4})\)\s*$/i;
 
@@ -291,6 +321,7 @@
     if (!isTarget(track.label) && !(realDeviceId && targetRealIds[realDeviceId])) return;
     track.__vcamDisguised = true;
     applyTrackDisguise(track, {
+      kind: "video",
       label: config.fakeLabel,
       deviceId: config.fakeDeviceId,
       groupId: config.fakeGroupId
@@ -340,11 +371,57 @@
       });
     } catch (e) {}
 
+    if (identity.kind === "video") {
+      applyVideoTrackDisguise(track, identity);
+      return;
+    }
+
     ["getSettings", "getCapabilities"].forEach((name) => {
       if (typeof track[name] !== "function") return;
       const orig = track[name].bind(track);
       track[name] = () => spoofOutput(orig(), identity);
     });
+  }
+
+  // Video tracks get a full physical-camera surface synthesized from the
+  // selected profile, while keeping the real (canvas-verifiable) resolution
+  // and frame rate from the underlying stream.
+  function applyVideoTrackDisguise(track, identity) {
+    const profile = resolveCameraProfile();
+    const origSettings =
+      typeof track.getSettings === "function" ? track.getSettings.bind(track) : null;
+
+    const realSettings = () => {
+      try {
+        return origSettings ? origSettings() : {};
+      } catch (e) {
+        return {};
+      }
+    };
+
+    // Wraps a track method: synthesize from the profile when available, else
+    // fall back to the real output with just the ids masked.
+    const wrap = (name, build) => {
+      if (typeof track[name] !== "function") return;
+      const orig = track[name].bind(track);
+      track[name] = function () {
+        if (profile && VP) {
+          try {
+            return build();
+          } catch (e) {}
+        }
+        let out;
+        try {
+          out = orig();
+        } catch (e) {
+          out = {};
+        }
+        return spoofOutput(out, identity);
+      };
+    };
+
+    wrap("getSettings", () => VP.buildVideoSettings(profile, realSettings(), identity));
+    wrap("getCapabilities", () => VP.buildVideoCapabilities(profile, realSettings(), identity));
   }
 
   function wrapGetUserMedia(origFn, thisArg) {
@@ -398,12 +475,47 @@
         return out;
       };
 
+      const videoIdentity = () => ({
+        kind: "video",
+        label: config.fakeLabel,
+        deviceId: config.fakeDeviceId,
+        groupId: config.fakeGroupId
+      });
+
+      // For a video target read straight off the prototype, rebuild the whole
+      // physical-camera surface from the profile instead of just masking ids.
+      const synthVideo = (isCaps, real) => {
+        if (!VP) return null;
+        const profile = resolveCameraProfile();
+        if (!profile) return null;
+        try {
+          const ident = videoIdentity();
+          return isCaps
+            ? VP.buildVideoCapabilities(profile, real, ident)
+            : VP.buildVideoSettings(profile, real, ident);
+        } catch (e) {
+          return null;
+        }
+      };
+
+      const origSettingsProto = TrackProto.getSettings;
+
       ["getSettings", "getCapabilities"].forEach((name) => {
         const orig = TrackProto[name];
         if (typeof orig !== "function") return;
+        const isCaps = name === "getCapabilities";
         TrackProto[name] = function () {
           const out = orig.apply(this, arguments);
+          if (!config.enabled) return out;
           try {
+            if (out && out.deviceId && targetRealIds[out.deviceId]) {
+              const real =
+                isCaps && typeof origSettingsProto === "function"
+                  ? origSettingsProto.apply(this, [])
+                  : out;
+              const synth = synthVideo(isCaps, real);
+              if (synth) return synth;
+            }
             maskTrackOutput(out);
           } catch (e) {}
           return out;
