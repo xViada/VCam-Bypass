@@ -4,15 +4,20 @@
   if (window.__vcamMaskInstalled) return;
   window.__vcamMaskInstalled = true;
 
+  // Self-contained on purpose: content scripts injected into the page's MAIN
+  // world can't reliably share globals across files, so this file must not
+  // depend on shared.js (doing so silently broke masking on real pages).
   const randomHex = (len) =>
     Array.from(crypto.getRandomValues(new Uint8Array(len / 2)), (b) =>
       b.toString(16).padStart(2, "0")
     ).join("");
 
+  const ID_RE = /^(.+?)\s*\(([0-9a-f]{4}:[0-9a-f]{4})\)\s*$/i;
+
   // Read live by the patched functions, so the bridge can refresh it after
   // document_start. IDs here are provisional until the stored config lands.
   const config = {
-    enabled: true,
+    enabled: false,
     targetLabel: "",
     fakeLabel: "Integrated Webcam (1bcf:2b95)",
     fakeDeviceId: randomHex(64),
@@ -25,8 +30,6 @@
     fakeMicDeviceId: randomHex(64),
     fakeMicGroupId: randomHex(64)
   };
-
-  const VIRTUAL_CAM_RE = /(ivcam|e2esoft|obs|virtual\s*cam|virtualcam|snap\s*camera|snapcam|manycam|xsplit|droidcam|epoccam|nvidia\s*broadcast|streamlabs|camtwist|iriun|reincubate|camo|splitcam|youcam|altercam|webcamoid|akvcam|vtube|mmhmm|prism\s*live)/i;
 
   // Camera capability profiles, injected just before us in the MAIN world. We
   // pull the reference and remove the global so the page can't read it back.
@@ -56,8 +59,6 @@
     }
   }
 
-  const ID_RE = /^(.+?)\s*\(([0-9a-f]{4}:[0-9a-f]{4})\)\s*$/i;
-
   // fakeId -> realId, used to translate getUserMedia constraints back.
   let fakeToReal = Object.create(null);
   let fakeMicToReal = Object.create(null);
@@ -74,13 +75,12 @@
   } catch (e) {}
 
   const eq = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase();
-  const isVirtualCam = (label) => !!label && VIRTUAL_CAM_RE.test(label);
 
-  // Auto mode matches any known virtual camera; otherwise match the picked label.
+  // A target must be explicitly selected; with no selection nothing is masked.
   function isTarget(label) {
     if (!label) return false;
     const target = (config.targetLabel || "").trim();
-    return target ? eq(label, target) : isVirtualCam(label);
+    return target ? eq(label, target) : false;
   }
 
   function micMode() {

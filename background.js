@@ -1,9 +1,8 @@
 "use strict";
 
-importScripts("profiles.js");
+importScripts("shared.js", "profiles.js");
 
-// Used when no name can be picked from the usb.ids list.
-const DEFAULT_LABEL = "Integrated Webcam (1bcf:2b95)";
+const { randomHex, DEFAULT_FAKE_LABEL } = self.__vcamShared;
 
 const USB_IDS_URLS = [
   "https://www.linux-usb.org/usb.ids",
@@ -14,12 +13,6 @@ const USB_IDS_URLS = [
 // scanners, etc.).
 const INCLUDE_RE = /(web ?-?cam|webcam|\bcamera\b)/i;
 const EXCLUDE_RE = /(camcorder|digital camera|\bdsc\b|\bdslr\b|still camera|\bptp\b|\bmtp\b|ip camera|dash ?cam|action ?cam|document camera|thermal|microscope|scanner|barcode|fingerprint)/i;
-
-// 64-char hex by default, matching Chrome's SHA-256 deviceId/groupId format.
-const randomHex = (len) =>
-  Array.from(crypto.getRandomValues(new Uint8Array(len / 2)), (b) =>
-    b.toString(16).padStart(2, "0")
-  ).join("");
 
 // usb.ids has vendor lines (no indent) followed by tab-indented device lines.
 function parseWebcams(text) {
@@ -82,18 +75,27 @@ function ensureWebcamList(forceRefresh) {
 
 function pickWebcamName() {
   return ensureWebcamList(false)
-    .then((list) => (list.length ? list[Math.floor(Math.random() * list.length)] : DEFAULT_LABEL))
-    .catch(() => DEFAULT_LABEL);
+    .then((list) => (list.length ? list[Math.floor(Math.random() * list.length)] : DEFAULT_FAKE_LABEL))
+    .catch(() => DEFAULT_FAKE_LABEL);
 }
 
 // Fills only the missing identity fields so values stay stable across sessions.
 function ensureDefaults() {
   chrome.storage.local.get(
-    ["fakeDeviceId", "fakeGroupId", "fakeLabel", "cameraProfile"],
+    [
+      "fakeDeviceId",
+      "fakeGroupId",
+      "fakeLabel",
+      "cameraProfile",
+      "fakeMicDeviceId",
+      "fakeMicGroupId"
+    ],
     (stored) => {
       const patch = {};
       if (!stored || !stored.fakeDeviceId) patch.fakeDeviceId = randomHex(64);
       if (!stored || !stored.fakeGroupId) patch.fakeGroupId = randomHex(64);
+      if (!stored || !stored.fakeMicDeviceId) patch.fakeMicDeviceId = randomHex(64);
+      if (!stored || !stored.fakeMicGroupId) patch.fakeMicGroupId = randomHex(64);
       if (!stored || !stored.cameraProfile || stored.cameraProfile === "auto") {
         patch.cameraProfile = "generic";
       }
@@ -182,17 +184,9 @@ chrome.runtime.onInstalled.addListener(onBoot);
 chrome.runtime.onStartup.addListener(onBoot);
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg && msg.type === "randomizeName") {
-    pickWebcamName().then((name) => sendResponse({ name }));
-    return true;
-  }
   if (msg && msg.type === "newCameraIdentity") {
     const p = self.__vcamProfiles.pickRandom();
-    sendResponse({ name: p.label || DEFAULT_LABEL, profile: p.id });
+    sendResponse({ name: p.label || DEFAULT_FAKE_LABEL, profile: p.id });
     return false;
-  }
-  if (msg && msg.type === "refreshWebcamList") {
-    ensureWebcamList(true).then((list) => sendResponse({ count: list.length }));
-    return true;
   }
 });

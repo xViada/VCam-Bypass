@@ -233,7 +233,6 @@
   }
 
   root.__vcamProfiles = {
-    get: get,
     resolve: resolve,
     list: list,
     pickRandom: pickRandom,

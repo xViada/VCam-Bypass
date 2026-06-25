@@ -1,24 +1,14 @@
 (function () {
   "use strict";
 
+  const mergeDeviceLabels = self.__vcamShared.mergeDeviceLabels;
+
   const statusEl = document.getElementById("status");
   const listEl = document.getElementById("list");
 
   function setStatus(msg, color) {
     statusEl.textContent = msg;
     statusEl.style.color = color || "#f0f0f0";
-  }
-
-  function storeLabels(storageKey, labels) {
-    return new Promise((resolve) => {
-      chrome.storage.local.get({ __availableCameras: [], __availableMics: [] }, (s) => {
-        const merged = ((s && s[storageKey]) || []).slice();
-        labels.forEach((l) => {
-          if (l && merged.indexOf(l) < 0) merged.push(l);
-        });
-        chrome.storage.local.set({ [storageKey]: merged }, resolve);
-      });
-    });
   }
 
   function renderGroup(title, items) {
@@ -61,8 +51,8 @@
         });
 
         return Promise.all([
-          storeLabels("__availableCameras", cams),
-          storeLabels("__availableMics", mics)
+          mergeDeviceLabels("__availableCameras", cams),
+          mergeDeviceLabels("__availableMics", mics)
         ]).then(() => {
           if (!cams.length && !mics.length) {
             setStatus("Permission granted but no named devices were detected.", "#e5c07b");

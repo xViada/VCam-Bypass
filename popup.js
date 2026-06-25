@@ -1,31 +1,9 @@
 (function () {
   "use strict";
 
-  const randomHex = (len) =>
-    Array.from(crypto.getRandomValues(new Uint8Array(len / 2)), (b) =>
-      b.toString(16).padStart(2, "0")
-    ).join("");
-
-  // Fallback config; real ids come from the service worker on install.
-  const DEFAULTS = {
-    enabled: true,
-    targetLabel: "",
-    fakeLabel: "Integrated Webcam (1bcf:2b95)",
-    fakeDeviceId: randomHex(64),
-    fakeGroupId: randomHex(64),
-    cameraProfile: "generic",
-    cameraCaps: null,
-    micMode: "auto",
-    targetMicLabel: "",
-    fakeMicLabel: "Internal Microphone (1bcf:2b95)",
-    fakeMicDeviceId: randomHex(64),
-    fakeMicGroupId: randomHex(64)
-  };
-
-  function deriveMicLabel(webcamLabel) {
-    const m = (webcamLabel || DEFAULTS.fakeLabel).trim().match(/^(.+?)\s*\(([0-9a-f]{4}:[0-9a-f]{4})\)\s*$/i);
-    return m ? "Internal Microphone (" + m[2] + ")" : DEFAULTS.fakeMicLabel;
-  }
+  const S = self.__vcamShared;
+  const { randomHex, deriveMicLabel } = S;
+  const DEFAULTS = S.createDefaults();
 
   const $ = (id) => document.getElementById(id);
 
@@ -244,6 +222,16 @@
 
   const detectBtn = $("detect");
   const statusEl = $("status");
+
+  // Number of cameras currently offered in the dropdown, used to tailor the
+  // "you must select a webcam" warning (detect first vs. just pick one).
+  let cameraCount = 0;
+
+  function noTargetMessage() {
+    return cameraCount
+      ? "Select a target webcam before enabling the mask."
+      : 'No webcams detected. Click "Detect cameras", then select one.';
+  }
   const micModeHint = $("micModeHint");
   const updateModalText = $("updateModalText");
   const updateModalUpdate = $("updateModalUpdate");
@@ -263,12 +251,26 @@
     custom: "Pick a specific mic and set its fake label and IDs. Match the camera groupId if a site cross-checks both."
   };
 
+  let statusTimer = null;
   function showStatus(msg, isError) {
     statusEl.textContent = msg;
-    statusEl.style.color = isError ? "#e06c75" : "#6cc070";
-    setTimeout(() => {
+    statusEl.style.color = isError ? "#f8a4a4" : "#6cc070";
+    statusEl.classList.toggle("status-error", !!isError);
+    if (statusTimer) clearTimeout(statusTimer);
+    statusTimer = setTimeout(() => {
       statusEl.textContent = "";
-    }, 2400);
+      statusEl.classList.remove("status-error");
+    }, isError ? 3600 : 2400);
+  }
+
+  // Plays the "tried to turn on but couldn't" animation on the toggle.
+  function denyEnable() {
+    const sw = fields.enabled.closest(".switch");
+    if (!sw) return;
+    sw.classList.remove("deny");
+    void sw.offsetWidth; // restart the animation if it's still running
+    sw.classList.add("deny");
+    sw.addEventListener("animationend", () => sw.classList.remove("deny"), { once: true });
   }
 
   function getStoredList(key) {
@@ -313,8 +315,9 @@
       "__availableCameras",
       "videoinput",
       selectedLabel,
-      "Auto (detect virtual cameras)"
+      "Select a webcam"
     ).then((count) => {
+      cameraCount = count;
       detectBtn.textContent = count ? "Detect more devices" : "Detect devices (grant permission)";
     });
   }
@@ -401,7 +404,7 @@
       cameraCaps: (fields.cameraProfile.value || "generic") === "custom" ? collectCaps() : null,
       micMode: fields.micMode.value || "auto",
       targetMicLabel: fields.micSelect.value || "",
-      fakeMicLabel: fields.fakeMicLabel.value.trim() || deriveMicLabel(fields.fakeLabel.value),
+      fakeMicLabel: fields.fakeMicLabel.value.trim() || deriveMicLabel(fields.fakeLabel.value, DEFAULTS.fakeLabel, DEFAULTS.fakeMicLabel),
       fakeMicDeviceId: fields.fakeMicDeviceId.value.trim() || DEFAULTS.fakeMicDeviceId,
       fakeMicGroupId: fields.fakeMicGroupId.value.trim() || DEFAULTS.fakeMicGroupId
     };
@@ -429,12 +432,19 @@
 
   updateModalLater.addEventListener("click", dismissUpdateModal);
 
-  detectBtn.addEventListener("click", () => {
-    const url = chrome.runtime.getURL("request.html");
+  function openExtensionPage(page) {
+    const url = chrome.runtime.getURL(page);
     if (chrome.tabs && chrome.tabs.create) chrome.tabs.create({ url });
     else window.open(url, "_blank");
+  }
+
+  detectBtn.addEventListener("click", () => {
+    openExtensionPage("request.html");
     showStatus("Grant permission in the opened tab, then come back here.");
   });
+
+  $("openTest").addEventListener("click", () => openExtensionPage("test.html"));
+  $("openGuide").addEventListener("click", () => openExtensionPage("guide.html"));
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== "local") return;
@@ -451,6 +461,12 @@
   });
 
   fields.enabled.addEventListener("change", () => {
+    if (fields.enabled.checked && !fields.cameraSelect.value) {
+      fields.enabled.checked = false;
+      denyEnable();
+      showStatus(noTargetMessage(), true);
+      return;
+    }
     chrome.storage.local.set({ enabled: fields.enabled.checked });
   });
 
@@ -477,18 +493,16 @@
 
   $("save").addEventListener("click", () => {
     const data = readForm();
+    if (data.enabled && !data.targetLabel) {
+      fields.enabled.checked = false;
+      denyEnable();
+      showStatus(noTargetMessage(), true);
+      return;
+    }
     // Reflect any clamped capability values back into the editor.
     if (data.cameraCaps) fillCapsForm(data.cameraCaps);
     chrome.storage.local.set(data, () => showStatus("Saved. Reload the page to apply."));
   });
-
-  function pickName() {
-    return new Promise((resolve) => {
-      chrome.runtime.sendMessage({ type: "randomizeName" }, (resp) => {
-        resolve((!chrome.runtime.lastError && resp && resp.name) || DEFAULTS.fakeLabel);
-      });
-    });
-  }
 
   function pickCameraIdentity() {
     return new Promise((resolve) => {
@@ -514,11 +528,9 @@
   });
 
   $("newMicIdentity").addEventListener("click", () => {
-    pickName().then((name) => {
-      fields.fakeMicLabel.value = deriveMicLabel(name);
-      fields.fakeMicDeviceId.value = randomHex(64);
-      fields.fakeMicGroupId.value = randomHex(64);
-      showStatus("New mic identity. Save to apply.");
-    });
+    fields.fakeMicLabel.value = deriveMicLabel(fields.fakeLabel.value, DEFAULTS.fakeLabel, DEFAULTS.fakeMicLabel);
+    fields.fakeMicDeviceId.value = randomHex(64);
+    fields.fakeMicGroupId.value = randomHex(64);
+    showStatus("New mic identity. Save to apply.");
   });
 })();

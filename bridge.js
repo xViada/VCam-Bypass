@@ -1,6 +1,9 @@
 (function () {
   "use strict";
 
+  // Self-contained on purpose: content scripts can't reliably depend on a
+  // sibling content-script file (shared.js) exposing globals, so everything
+  // this needs is inlined here.
   const randomHex = (len) =>
     Array.from(crypto.getRandomValues(new Uint8Array(len / 2)), (b) =>
       b.toString(16).padStart(2, "0")
@@ -8,7 +11,7 @@
 
   // Fallback only; the stable deviceId/groupId are persisted on install.
   const DEFAULTS = {
-    enabled: true,
+    enabled: false,
     targetLabel: "",
     fakeLabel: "Integrated Webcam (1bcf:2b95)",
     fakeDeviceId: randomHex(64),
@@ -21,6 +24,10 @@
     fakeMicDeviceId: randomHex(64),
     fakeMicGroupId: randomHex(64)
   };
+
+  // Storage keys that affect the mask; changes to anything else (device lists,
+  // update-check metadata) shouldn't trigger a re-send.
+  const CONFIG_KEYS = Object.keys(DEFAULTS);
 
   function sendConfig(cfg) {
     try {
@@ -42,14 +49,13 @@
   // The ISOLATED world sees the real labels (not the mask), so we collect
   // them here and stash them for the popup's dropdowns.
   function mergeLabels(storageKey, labels) {
-    if (!labels.length) return;
+    const fresh = labels.filter(Boolean);
+    if (!fresh.length) return;
     chrome.storage.local.get({ __availableCameras: [], __availableMics: [] }, (s) => {
-      const merged = ((s && s[storageKey]) || []).slice();
-      const before = merged.length;
-      labels.forEach((l) => {
-        if (merged.indexOf(l) < 0) merged.push(l);
-      });
-      if (merged.length !== before) chrome.storage.local.set({ [storageKey]: merged });
+      const merged = new Set((s && s[storageKey]) || []);
+      const before = merged.size;
+      fresh.forEach((l) => merged.add(l));
+      if (merged.size !== before) chrome.storage.local.set({ [storageKey]: [...merged] });
     });
   }
 
@@ -82,7 +88,7 @@
 
   try {
     chrome.storage.onChanged.addListener((changes, area) => {
-      if (area === "local") loadAndSend();
+      if (area === "local" && CONFIG_KEYS.some((k) => k in changes)) loadAndSend();
     });
   } catch (e) {}
 })();

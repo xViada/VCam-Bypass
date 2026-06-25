@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How to use - VCam Bypass</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f1115;
+        --surface: #1b1e25;
+        --surface-2: #23262f;
+        --border: #2c303a;
+        --border-strong: #3a3f4b;
+        --text: #eef0f4;
+        --text-dim: #9aa0ac;
+        --text-faint: #6b7280;
+        --accent: #5b8cff;
+        --accent-2: #8a6cff;
+        --accent-hover: #6f9bff;
+        --ok: #4ade80;
+        --radius: 14px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        background: var(--bg);
+      }
+      body {
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        padding: 26px 18px 40px;
+        background: radial-gradient(1200px 480px at 50% -120px, #1a2030 0%, var(--bg) 60%);
+        color: var(--text);
+        font-size: 14px;
+        line-height: 1.5;
+        display: flex;
+        justify-content: center;
+      }
+      .wrap {
+        width: 100%;
+        max-width: 880px;
+      }
+
+      /* ---------- Header ---------- */
+      .hero {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+      .hero img {
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+      }
+      .hero h1 {
+        font-size: 21px;
+        margin: 0;
+        letter-spacing: -0.02em;
+      }
+      .hero p {
+        margin: 3px 0 0;
+        font-size: 12.5px;
+        color: var(--text-dim);
+        max-width: 560px;
+      }
+
+      /* ---------- Steps grid ---------- */
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+      }
+      @media (max-width: 640px) {
+        .steps {
+          grid-template-columns: 1fr;
+        }
+      }
+      .step {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        transition: transform 0.15s ease, border-color 0.15s, box-shadow 0.15s;
+      }
+      .step:hover {
+        transform: translateY(-3px);
+        border-color: var(--border-strong);
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4);
+      }
+      .step:hover .media.has-img {
+        transform: scale(1.03);
+      }
+
+      .num {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 3;
+        width: 27px;
+        height: 27px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 800;
+        color: #fff;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        box-shadow: 0 5px 14px rgba(0, 0, 0, 0.45);
+      }
+
+      /* ---------- Media (image / gif placeholder) ---------- */
+      .media {
+        position: relative;
+        height: 158px;
+        background-color: #14171d;
+        background-size: cover;
+        background-position: center;
+        transition: transform 0.25s ease;
+      }
+      .media::after {
+        /* subtle bottom fade so the number/title stay readable over any image */
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0%, transparent 34%);
+        pointer-events: none;
+      }
+      .ph {
+        position: absolute;
+        inset: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        text-align: center;
+        padding: 10px;
+        border: 1.5px dashed var(--border-strong);
+        border-radius: 10px;
+        background: repeating-linear-gradient(
+          -45deg,
+          rgba(255, 255, 255, 0.012) 0 10px,
+          transparent 10px 20px
+        );
+        color: var(--text-faint);
+      }
+      .media.has-img .ph {
+        display: none;
+      }
+      .ph svg {
+        opacity: 0.55;
+      }
+      .ph .kind {
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: var(--surface-2);
+        border: 1px solid var(--border-strong);
+        color: var(--text-dim);
+      }
+      .ph p {
+        margin: 0;
+        font-size: 11px;
+        line-height: 1.35;
+        max-width: 92%;
+        color: var(--text-faint);
+      }
+
+      /* ---------- Step body ---------- */
+      .body {
+        padding: 11px 14px 13px;
+      }
+      .body h2 {
+        font-size: 13.5px;
+        margin: 0 0 3px;
+        letter-spacing: -0.01em;
+      }
+      .body p {
+        margin: 0;
+        font-size: 12px;
+        color: var(--text-dim);
+        line-height: 1.45;
+      }
+      .pill {
+        display: inline-block;
+        padding: 0 6px;
+        border-radius: 5px;
+        background: var(--surface-2);
+        border: 1px solid var(--border-strong);
+        color: var(--text);
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      /* ---------- Footer note + link ---------- */
+      .note {
+        display: flex;
+        gap: 11px;
+        align-items: center;
+        margin-top: 16px;
+        padding: 13px 16px;
+        border-radius: var(--radius);
+        border: 1px solid rgba(91, 140, 255, 0.32);
+        background: linear-gradient(135deg, rgba(91, 140, 255, 0.12), rgba(138, 108, 255, 0.07));
+        font-size: 12.5px;
+        color: var(--text-dim);
+      }
+      .note .ico {
+        font-size: 18px;
+        line-height: 1;
+      }
+      .note b {
+        color: var(--text);
+      }
+      .gh-link {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        width: fit-content;
+        margin: 18px auto 0;
+        font-size: 12px;
+        color: var(--text-faint);
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      .gh-link:hover {
+        color: var(--accent-hover);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="hero">
+        <img src="icons/extension_icon48.png" alt="VCam Bypass icon" />
+        <div>
+          <h1>How to use VCam Bypass</h1>
+          <p>Make a virtual camera (OBS, ManyCam, DroidCam, iVCam...) look like a real webcam.</p>
+        </div>
+      </div>
+
+      <div class="steps">
+        <article class="step">
+          <span class="num">1</span>
+          <div
+            class="media"
+            data-src="docs/images/guide/01-detect.gif"
+            data-kind="gif"
+            data-label="Popup: Detect cameras + Allow dialog"
+          ></div>
+          <div class="body">
+            <h2>Detect your cameras</h2>
+            <p>Click <span class="pill">Detect cameras</span> and <span class="pill">Allow</span>. This only reads device names.</p>
+          </div>
+        </article>
+
+        <article class="step">
+          <span class="num">2</span>
+          <div
+            class="media"
+            data-src="docs/images/guide/02-target.gif"
+            data-kind="gif"
+            data-label="Popup: Target webcam dropdown open"
+          ></div>
+          <div class="body">
+            <h2>Select the target webcam</h2>
+            <p>Open <span class="pill">Target webcam</span> and pick your virtual camera. A target is required.</p>
+          </div>
+        </article>
+
+        <article class="step">
+          <span class="num">3</span>
+          <div
+            class="media"
+            data-src="docs/images/guide/03-model.png"
+            data-kind="screenshot"
+            data-label="Popup: Emulated model / New identity"
+          ></div>
+          <div class="body">
+            <h2>Choose a camera to emulate</h2>
+            <p>Pick a real model under <span class="pill">Emulated model</span>, or hit <span class="pill">New identity</span>.</p>
+          </div>
+        </article>
+
+        <article class="step">
+          <span class="num">4</span>
+          <div
+            class="media"
+            data-src="docs/images/guide/04-mic.png"
+            data-kind="screenshot"
+            data-label="Popup: Mic mask options (optional)"
+          ></div>
+          <div class="body">
+            <h2>Microphone <span style="color: var(--text-faint); font-weight: 400">(optional)</span></h2>
+            <p>Use <span class="pill">Mic mask</span> to match the mic to the webcam, or leave it on <span class="pill">Auto</span>.</p>
+          </div>
+        </article>
+
+        <article class="step">
+          <span class="num">5</span>
+          <div
+            class="media"
+            data-src="docs/images/guide/05-enable-save.png"
+            data-kind="screenshot"
+            data-label="Toggle ON, then click Save changes"
+          ></div>
+          <div class="body">
+            <h2>Enable and save</h2>
+            <p>Flip the switch <span class="pill">on</span> and click <span class="pill">Save changes</span>.</p>
+          </div>
+        </article>
+
+        <article class="step">
+          <span class="num">6</span>
+          <div
+            class="media"
+            data-src="docs/images/guide/06-test.gif"
+            data-kind="gif"
+            data-label="The Test it page showing a green verdict"
+          ></div>
+          <div class="body">
+            <h2>Verify it works</h2>
+            <p>Open <span class="pill">Test it</span> from the popup to confirm the site sees the fake webcam.</p>
+          </div>
+        </article>
+      </div>
+
+      <div class="note">
+        <span class="ico" aria-hidden="true">&#128161;</span>
+        <div><b>Reload after every change.</b> Settings apply on page load, so reload the site whenever you change the popup config.</div>
+      </div>
+
+      <a class="gh-link" href="https://github.com/xViada/VCam-Bypass" target="_blank" rel="noopener">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        github.com/xViada/VCam-Bypass
+      </a>
+    </div>
+
+    <script src="guide.js"></script>
+  </body>
+</html>

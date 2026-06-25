@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test the mask - VCam Bypass</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f1115;
+        --surface: #1b1e25;
+        --surface-2: #23262f;
+        --border: #2c303a;
+        --border-strong: #3a3f4b;
+        --text: #eef0f4;
+        --text-dim: #9aa0ac;
+        --text-faint: #6b7280;
+        --accent: #5b8cff;
+        --accent-2: #8a6cff;
+        --accent-hover: #6f9bff;
+        --ok: #4ade80;
+        --warn: #fbbf24;
+        --err: #f87171;
+        --radius: 14px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        background: var(--bg);
+      }
+      body {
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        padding: 26px 18px 40px;
+        background: radial-gradient(1200px 480px at 50% -120px, #1a2030 0%, var(--bg) 60%);
+        color: var(--text);
+        font-size: 14px;
+        line-height: 1.5;
+        display: flex;
+        justify-content: center;
+      }
+      .wrap {
+        width: 100%;
+        max-width: 880px;
+      }
+
+      /* ---------- Header ---------- */
+      .hero {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+      .hero img {
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+      }
+      .hero h1 {
+        font-size: 21px;
+        margin: 0;
+        letter-spacing: -0.02em;
+      }
+      .hero p {
+        margin: 3px 0 0;
+        font-size: 12.5px;
+        color: var(--text-dim);
+        max-width: 560px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px 18px;
+        margin-bottom: 14px;
+      }
+      .verdict {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        padding: 18px;
+        transition: border-color 0.3s;
+      }
+      .verdict::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        background: radial-gradient(460px 130px at 0% 50%, var(--vc, transparent), transparent 70%);
+        transition: opacity 0.3s;
+        pointer-events: none;
+      }
+      .verdict.ok {
+        --vc: rgba(74, 222, 128, 0.16);
+        border-color: rgba(74, 222, 128, 0.35);
+      }
+      .verdict.warn {
+        --vc: rgba(251, 191, 36, 0.16);
+        border-color: rgba(251, 191, 36, 0.32);
+      }
+      .verdict.err {
+        --vc: rgba(248, 113, 113, 0.16);
+        border-color: rgba(248, 113, 113, 0.32);
+      }
+      .verdict.ok::before,
+      .verdict.warn::before,
+      .verdict.err::before {
+        opacity: 1;
+      }
+
+      /* Status icon */
+      .v-icon {
+        position: relative;
+        flex: 0 0 auto;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        color: #fff;
+        background: linear-gradient(135deg, #3a3f4b, #2c303a);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+        transition: background 0.3s, box-shadow 0.3s;
+      }
+      .v-icon svg {
+        width: 26px;
+        height: 26px;
+      }
+      .verdict.ok .v-icon {
+        background: linear-gradient(135deg, #34d399, #22c55e);
+        box-shadow: 0 0 0 5px rgba(74, 222, 128, 0.14), 0 8px 20px rgba(34, 197, 94, 0.32);
+      }
+      .verdict.warn .v-icon {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        box-shadow: 0 0 0 5px rgba(251, 191, 36, 0.14), 0 8px 20px rgba(245, 158, 11, 0.3);
+      }
+      .verdict.err .v-icon {
+        background: linear-gradient(135deg, #f87171, #ef4444);
+        box-shadow: 0 0 0 5px rgba(248, 113, 113, 0.14), 0 8px 20px rgba(239, 68, 68, 0.3);
+      }
+      /* Success ripple */
+      .verdict.ok .v-icon::after {
+        content: "";
+        position: absolute;
+        inset: -5px;
+        border-radius: 50%;
+        border: 2px solid rgba(74, 222, 128, 0.6);
+        animation: v-pulse 1.8s ease-out infinite;
+      }
+      @keyframes v-pulse {
+        0% {
+          transform: scale(0.9);
+          opacity: 0.7;
+        }
+        100% {
+          transform: scale(1.55);
+          opacity: 0;
+        }
+      }
+      /* Pending spinner */
+      .v-icon.spin svg {
+        animation: v-spin 0.9s linear infinite;
+      }
+      @keyframes v-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .v-body {
+        position: relative;
+        z-index: 1;
+        min-width: 0;
+      }
+      .verdict h2 {
+        font-size: 16px;
+        margin: 0 0 3px;
+        letter-spacing: -0.01em;
+      }
+      .verdict p {
+        margin: 0;
+        font-size: 12.5px;
+        color: var(--text-dim);
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+      .controls label {
+        font-size: 12px;
+        color: var(--text-dim);
+      }
+      select {
+        appearance: none;
+        padding: 8px 28px 8px 10px;
+        min-width: 220px;
+        border: 1px solid var(--border-strong);
+        border-radius: 7px;
+        background: var(--surface-2)
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239aa0ac' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")
+          no-repeat right 9px center;
+        color: var(--text);
+        font-size: 13px;
+        font-family: inherit;
+        cursor: pointer;
+      }
+      button {
+        padding: 9px 16px;
+        border: none;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      button:hover {
+        background: var(--accent-hover);
+      }
+      button.secondary {
+        background: var(--surface-2);
+        color: var(--text-dim);
+        border: 1px solid var(--border-strong);
+        font-weight: 500;
+      }
+      button.secondary:hover {
+        background: #2b2f39;
+        color: var(--text);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      @media (max-width: 620px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      video {
+        width: 100%;
+        border-radius: 10px;
+        background: #000;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+      }
+      .card-title {
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--text-faint);
+        margin: 0 0 12px;
+      }
+      .kv {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 6px 0;
+        border-bottom: 1px dashed var(--border);
+        font-size: 12.5px;
+      }
+      .kv:last-child {
+        border-bottom: none;
+      }
+      .kv .k {
+        color: var(--text-dim);
+        flex: 0 0 auto;
+      }
+      .kv .v {
+        color: var(--text);
+        text-align: right;
+        word-break: break-all;
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        font-size: 12px;
+      }
+      .kv .v.good {
+        color: var(--ok);
+      }
+      .kv .v.bad {
+        color: var(--err);
+      }
+      .kv .v.muted {
+        color: var(--text-faint);
+      }
+      .empty {
+        color: var(--text-faint);
+        font-size: 12.5px;
+      }
+      .hint {
+        font-size: 12px;
+        color: var(--text-faint);
+        margin: 12px 0 0;
+      }
+      .gh-link {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        width: fit-content;
+        margin: 18px auto 0;
+        font-size: 12px;
+        color: var(--text-faint);
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      .gh-link:hover {
+        color: var(--accent-hover);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="hero">
+        <img src="icons/extension_icon48.png" alt="VCam Bypass icon" />
+        <div>
+          <h1>Test the mask</h1>
+          <p>This page shows exactly what a website sees when it opens your camera.</p>
+        </div>
+      </div>
+
+      <div class="card verdict" id="verdict">
+        <div class="v-icon spin" id="verdictIcon"></div>
+        <div class="v-body">
+          <h2 id="verdictTitle">Preparing test...</h2>
+          <p id="verdictText">Grant camera and microphone access when your browser asks.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="controls">
+          <label for="camPick">Camera</label>
+          <select id="camPick"></select>
+          <button id="grant" class="secondary">Refresh devices</button>
+        </div>
+        <p class="hint">
+          Pick the camera you masked (it appears
+          with the fake name) and the values below update on the spot.
+        </p>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <p class="card-title">Live preview</p>
+          <video id="preview" autoplay playsinline muted></video>
+        </div>
+
+        <div class="card">
+          <p class="card-title">What the site sees (active camera)</p>
+          <div id="report"><p class="empty">Run the test to see the reported identity, settings and capabilities.</p></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">All cameras reported by enumerateDevices()</p>
+        <div id="deviceList"><p class="empty">No devices yet. Click "Grant / refresh devices".</p></div>
+      </div>
+
+      <a class="gh-link" href="https://github.com/xViada/VCam-Bypass" target="_blank" rel="noopener">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        github.com/xViada/VCam-Bypass
+      </a>
+    </div>
+
+    <!-- Content scripts don't run on extension pages, so we load the mask
+         here ourselves to mirror exactly what a real website would receive. -->
+    <script src="shared.js"></script>
+    <script src="profiles.js"></script>
+    <script src="inject.js"></script>
+    <script src="bridge.js"></script>
+    <script src="test.js"></script>
+  </body>
+</html>

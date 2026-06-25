@@ -21,8 +21,8 @@ operating system or the actual video.
   patches:
   - `navigator.mediaDevices.enumerateDevices()`: it rewrites the target device's
     `label`, `deviceId` and `groupId` to physical-webcam values. The target is
-    the one you picked in the dropdown, or any known virtual camera in **Auto**
-    mode.
+    the one you picked in the dropdown; a target must be selected for the mask
+    to do anything.
   - `navigator.mediaDevices.getUserMedia()` (and the legacy variants): translates
     the fake `deviceId` in the constraints back to the real one before requesting
     the stream, then masks the video tracks: it spoofs the `label` and
@@ -42,9 +42,15 @@ operating system or the actual video.
 - `background.js` is a service worker that, on install, generates and persists
   random, stable `deviceId`/`groupId` values, seeds the default capability profile
   and picks a random webcam name from the usb.ids list (with a fallback default).
-- `popup.html` / `popup.js` provide the configuration UI.
+- `popup.html` / `popup.js` provide the configuration UI, including a **Test it**
+  button (opens `test.html`) and a **How to use** button (opens `guide.html`).
 - `request.html` / `request.js` is a page that requests camera permission to read
   the real camera names.
+- `test.html` / `test.js` opens the camera and shows exactly what a website sees
+  (label, ids, settings and capabilities), so you can confirm the mask works.
+  Because content scripts don't run on extension pages, it loads `profiles.js`,
+  `inject.js` and `bridge.js` itself to mirror a real page.
+- `guide.html` is a short step-by-step usage guide.
 
 ## Installation (load unpacked)
 
@@ -68,10 +74,11 @@ operating system or the actual video.
 
 ## Configuration (popup)
 
-- **Enabled**: turns the mask on/off without uninstalling.
+- **Enabled**: turns the mask on/off without uninstalling. You must select a
+  target webcam first; the mask can't be enabled without one.
 - **Target webcam**: dropdown with the available webcams to choose which one to
-  act on. If left on **Auto**, it detects known virtual cameras by name. The list
-  is filled in two ways:
+  act on. A webcam must be selected — if none is available, use **Detect cameras**
+  first, then pick one. The list is filled in two ways:
   - Automatically, from sites where you have already granted camera permission
     (collected by `bridge.js`).
   - With the **Detect cameras** button, which opens an extension tab where Chrome
@@ -125,8 +132,10 @@ and granted pages request mic permission too).
 - `profiles.js` - capability profiles for real webcam models and the builders for the spoofed getSettings/getCapabilities (shared by inject, popup and background).
 - `bridge.js` - bridge between `chrome.storage` and the page (ISOLATED world).
 - `background.js` - service worker that persists random deviceId/groupId, seeds the default capability profile and picks a random webcam name from usb.ids.
-- `popup.html` / `popup.js` - configuration UI.
+- `popup.html` / `popup.js` - configuration UI (with **Test it** and **How to use** buttons).
 - `request.html` / `request.js` - page that requests camera and microphone permission and detects the real names.
+- `test.html` / `test.js` - verification page that shows what a website sees when it opens your camera.
+- `guide.html` - short how-to-use guide.
 
 ## Disclaimer
 
