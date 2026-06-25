@@ -39,7 +39,7 @@
     }
   }
 
-  // The ISOLATED world sees the real labels (not the disguise), so we collect
+  // The ISOLATED world sees the real labels (not the mask), so we collect
   // them here and stash them for the popup's dropdowns.
   function mergeLabels(storageKey, labels) {
     if (!labels.length) return;

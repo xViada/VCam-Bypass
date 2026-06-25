@@ -25,10 +25,10 @@ operating system or the actual video.
     mode.
   - `navigator.mediaDevices.getUserMedia()` (and the legacy variants): translates
     the fake `deviceId` in the constraints back to the real one before requesting
-    the stream, then disguises the video tracks: it spoofs the `label` and
+    the stream, then masks the video tracks: it spoofs the `label` and
     synthesizes a full physical-camera `getSettings()` / `getCapabilities()` from
     the selected model profile, while keeping the real (canvas-verifiable)
-    resolution and frame rate. When mic disguise is on, audio devices/tracks are
+    resolution and frame rate. When mic mask is on, audio devices/tracks are
     rewritten the same way.
   - `MediaStreamTrack.prototype.getSettings` / `getCapabilities` to mask the real
     `deviceId` (and rebuild the camera surface) on any track.
@@ -48,7 +48,7 @@ operating system or the actual video.
 
 ## Installation (load unpacked)
 
-1. Make sure the virtual camera you want to disguise is **installed and running**
+1. Make sure the virtual camera you want to mask is **installed and running**
    so its device exists.
 2. Open Chrome and go to `chrome://extensions`.
 3. Enable **Developer mode** (top right).
@@ -68,7 +68,7 @@ operating system or the actual video.
 
 ## Configuration (popup)
 
-- **Enabled**: turns the disguise on/off without uninstalling.
+- **Enabled**: turns the mask on/off without uninstalling.
 - **Target webcam**: dropdown with the available webcams to choose which one to
   act on. If left on **Auto**, it detects known virtual cameras by name. The list
   is filled in two ways:
@@ -103,16 +103,16 @@ install and kept stable, just like Chrome's real SHA-256 ids.
 
 ### Microphone
 
-The **Mic disguise** dropdown controls how microphones are handled:
+The **Mic mask** dropdown controls how microphones are handled:
 
-- **Auto (linked to camera)** *(default)*: disguises the mic that belongs to the
+- **Auto (linked to camera)** *(default)*: masks the mic that belongs to the
   same physical device as the target camera (shares its `groupId`). It reuses the
   camera's fake `groupId` and a matching label (e.g.
   `Microphone (Integrated Webcam) (1bcf:2b95)`) so sites see a real built-in
   webcam + mic combo. If the camera has no linked mic (e.g. a virtual camera), it
   falls back to the system's default microphone.
 - **Off (video only)**: leaves microphones untouched.
-- **Custom (pick a mic)**: disguise a specific microphone with your own fake name,
+- **Custom (pick a mic)**: mask a specific microphone with your own fake name,
   `deviceId` and `groupId`.
 
 Real mic names are detected together with cameras (the **Detect cameras** button

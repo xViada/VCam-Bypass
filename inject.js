@@ -1,8 +1,8 @@
 (function () {
   "use strict";
 
-  if (window.__vcamDisguiseInstalled) return;
-  window.__vcamDisguiseInstalled = true;
+  if (window.__vcamMaskInstalled) return;
+  window.__vcamMaskInstalled = true;
 
   const randomHex = (len) =>
     Array.from(crypto.getRandomValues(new Uint8Array(len / 2)), (b) =>
@@ -42,7 +42,7 @@
     }
   })();
 
-  // The capability profile to present for the disguised camera. A fully
+  // The capability profile to present for the masked camera. A fully
   // custom capabilities object (edited in the popup) wins over the presets.
   function resolveCameraProfile() {
     if (config.cameraCaps && typeof config.cameraCaps === "object") {
@@ -128,7 +128,7 @@
   // "default" / "communications" are Chrome's fixed mirror ids, not real hashes.
   const isPseudoId = (id) => id === "default" || id === "communications";
 
-  // Real groupId of the mic to disguise, so the default/communications mirrors
+  // Real groupId of the mic to mask, so the default/communications mirrors
   // of the same device get covered too.
   function pickMicGroup(devices, camTarget) {
     const mics = devices.filter((d) => d.kind === "audioinput");
@@ -296,7 +296,7 @@
   // --- getUserMedia ---
   function patchStreamTracks(stream) {
     try {
-      (stream.getTracks ? stream.getTracks() : []).forEach(disguiseTrack);
+      (stream.getTracks ? stream.getTracks() : []).forEach(maskTrack);
     } catch (e) {}
     return stream;
   }
@@ -310,17 +310,17 @@
     }
   }
 
-  function disguiseTrack(track) {
-    if (!track || track.__vcamDisguised) return;
+  function maskTrack(track) {
+    if (!track || track.__vcamMasked) return;
     const realDeviceId = trackDeviceId(track);
-    if (track.kind === "video") disguiseVideoTrack(track, realDeviceId);
-    else if (track.kind === "audio") disguiseAudioTrack(track, realDeviceId);
+    if (track.kind === "video") maskVideoTrack(track, realDeviceId);
+    else if (track.kind === "audio") maskAudioTrack(track, realDeviceId);
   }
 
-  function disguiseVideoTrack(track, realDeviceId) {
+  function maskVideoTrack(track, realDeviceId) {
     if (!isTarget(track.label) && !(realDeviceId && targetRealIds[realDeviceId])) return;
-    track.__vcamDisguised = true;
-    applyTrackDisguise(track, {
+    track.__vcamMasked = true;
+    applyTrackMask(track, {
       kind: "video",
       label: config.fakeLabel,
       deviceId: config.fakeDeviceId,
@@ -328,7 +328,7 @@
     });
   }
 
-  function disguiseAudioTrack(track, realDeviceId) {
+  function maskAudioTrack(track, realDeviceId) {
     const micId = micIdentity();
     if (!micId) return;
 
@@ -350,8 +350,8 @@
     }
 
     if (!matched) return;
-    track.__vcamDisguised = true;
-    applyTrackDisguise(track, micId);
+    track.__vcamMasked = true;
+    applyTrackMask(track, micId);
   }
 
   function spoofOutput(out, identity) {
@@ -362,7 +362,7 @@
     return out;
   }
 
-  function applyTrackDisguise(track, identity) {
+  function applyTrackMask(track, identity) {
     try {
       Object.defineProperty(track, "label", {
         configurable: true,
@@ -372,7 +372,7 @@
     } catch (e) {}
 
     if (identity.kind === "video") {
-      applyVideoTrackDisguise(track, identity);
+      applyVideoTrackMask(track, identity);
       return;
     }
 
@@ -386,7 +386,7 @@
   // Video tracks get a full physical-camera surface synthesized from the
   // selected profile, while keeping the real (canvas-verifiable) resolution
   // and frame rate from the underlying stream.
-  function applyVideoTrackDisguise(track, identity) {
+  function applyVideoTrackMask(track, identity) {
     const profile = resolveCameraProfile();
     const origSettings =
       typeof track.getSettings === "function" ? track.getSettings.bind(track) : null;

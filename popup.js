@@ -258,8 +258,8 @@
   }
 
   const MIC_HINTS = {
-    auto: "Disguises the mic linked to the target camera so sites see a built-in combo.",
-    off: "Only the webcam is disguised; microphones keep their real identity.",
+    auto: "Masks the mic linked to the target camera so sites see a built-in combo.",
+    off: "Only the webcam is masked; microphones keep their real identity.",
     custom: "Pick a specific mic and set its fake label and IDs. Match the camera groupId if a site cross-checks both."
   };
 

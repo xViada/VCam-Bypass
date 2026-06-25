@@ -186,8 +186,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     pickWebcamName().then((name) => sendResponse({ name }));
     return true;
   }
-  // A coherent camera identity: a real model whose label and capability
-  // profile match each other.
   if (msg && msg.type === "newCameraIdentity") {
     const p = self.__vcamProfiles.pickRandom();
     sendResponse({ name: p.label || DEFAULT_LABEL, profile: p.id });
