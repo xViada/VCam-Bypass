@@ -97,11 +97,16 @@ function ensureDefaults() {
       if (!stored || !stored.fakeMicDeviceId) patch.fakeMicDeviceId = randomHex(64);
       if (!stored || !stored.fakeMicGroupId) patch.fakeMicGroupId = randomHex(64);
       if (!stored || !stored.cameraProfile || stored.cameraProfile === "auto") {
-        patch.cameraProfile = "generic";
+        const p = self.__vcamProfiles.pickRandom();
+        patch.cameraProfile = p.id;
+        if (p.label && (!stored || !stored.fakeLabel)) {
+          patch.fakeLabel = p.label;
+        }
       }
 
+      const needLabel = !stored || !stored.fakeLabel;
       const labelPromise =
-        !stored || !stored.fakeLabel ? pickWebcamName() : Promise.resolve(null);
+        needLabel && !patch.fakeLabel ? pickWebcamName() : Promise.resolve(null);
 
       labelPromise.then((name) => {
         if (name) patch.fakeLabel = name;
