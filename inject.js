@@ -18,13 +18,14 @@
   // document_start. IDs here are provisional until the stored config lands.
   const config = {
     enabled: false,
+    hideOtherDevices: false,
     targetLabel: "",
     fakeLabel: "Integrated Webcam (1bcf:2b95)",
     fakeDeviceId: randomHex(64),
     fakeGroupId: randomHex(64),
     cameraProfile: "generic",
     cameraCaps: null,
-    micMode: "auto",
+    micMode: "off",
     targetMicLabel: "",
     fakeMicLabel: "Internal Microphone (1bcf:2b95)",
     fakeMicDeviceId: randomHex(64),
@@ -65,6 +66,10 @@
   let targetRealIds = Object.create(null);
   let targetMicRealIds = Object.create(null);
   let targetMicRealGroupId = null;
+  // Real ids of the masked devices, used to pin requests when the rest of the
+  // devices are hidden from the page.
+  let targetCamRealId = null;
+  let targetMicRealId = null;
 
   window.addEventListener("vcam:config", (ev) => {
     const incoming = ev.detail;
@@ -83,9 +88,16 @@
     return target ? eq(label, target) : false;
   }
 
+  // Anything unrecognized means "leave microphones alone", the same as the
+  // default: masking a device the popup never validated is the worse outcome.
   function micMode() {
-    const mode = (config.micMode || "auto").toLowerCase();
-    return mode === "off" || mode === "custom" ? mode : "auto";
+    const mode = (config.micMode || "off").toLowerCase();
+    return mode === "auto" || mode === "custom" ? mode : "off";
+  }
+
+  // When on, the page is only allowed to know about the emulated devices.
+  function hidingOthers() {
+    return !!(config.enabled && config.hideOtherDevices);
   }
 
   function deriveMicLabel(webcamLabel) {
@@ -102,6 +114,8 @@
     return label ? "Microphone (" + label + ")" : "Microphone";
   }
 
+  // Both masking modes rewrite the one microphone the user picked as the target;
+  // they only differ in the identity it gets.
   function micIdentity() {
     const mode = micMode();
     if (mode === "off") return null;
@@ -112,7 +126,9 @@
         groupId: config.fakeMicGroupId || config.fakeGroupId
       };
     }
-    // Auto: same physical device as the camera -> share its groupId.
+    // Auto: pass it off as the emulated camera's built-in mic, which means the
+    // camera's own name in the label and its groupId, the way a real webcam with
+    // a mic on the same physical device looks.
     return {
       label: linkedMicLabel(config.fakeLabel),
       deviceId: config.fakeMicDeviceId,
@@ -129,24 +145,14 @@
   const isPseudoId = (id) => id === "default" || id === "communications";
 
   // Real groupId of the mic to mask, so the default/communications mirrors
-  // of the same device get covered too.
-  function pickMicGroup(devices, camTarget) {
-    const mics = devices.filter((d) => d.kind === "audioinput");
-
-    if (micMode() === "custom") {
-      const hit = mics.find((d) => isMicTargetLabel(d.label) && d.groupId);
-      return hit ? hit.groupId : null;
-    }
-
-    if (camTarget && camTarget.groupId && mics.some((d) => d.groupId === camTarget.groupId)) {
-      return camTarget.groupId;
-    }
-
-    const real = mics.find((d) => d.groupId && d.deviceId && !isPseudoId(d.deviceId));
-    if (real) return real.groupId;
-
-    const any = mics.find((d) => d.groupId);
-    return any ? any.groupId : null;
+  // of the same device get covered too. Nothing is masked without an explicit
+  // target: a mask that borrows whichever mic happens to be around would put a
+  // device the user never chose behind the camera's identity.
+  function pickMicGroup(devices) {
+    const hit = devices.find(
+      (d) => d.kind === "audioinput" && isMicTargetLabel(d.label) && d.groupId
+    );
+    return hit ? hit.groupId : null;
   }
 
   if (!navigator.mediaDevices) return;
@@ -165,25 +171,32 @@
         targetRealIds = Object.create(null);
         targetMicRealIds = Object.create(null);
         targetMicRealGroupId = null;
-
-        const camTarget =
-          devices.find((d) => d.kind === "videoinput" && isTarget(d.label)) || null;
+        targetCamRealId = null;
+        targetMicRealId = null;
 
         const micId = micIdentity();
-        if (micId) targetMicRealGroupId = pickMicGroup(devices, camTarget);
+        if (micId) targetMicRealGroupId = pickMicGroup(devices);
 
-        return devices.map((dev) => {
+        const entries = devices.map((dev) => {
           if (dev.kind === "videoinput" && isTarget(dev.label)) {
             if (dev.deviceId) {
-              fakeToReal[config.fakeDeviceId] = dev.deviceId;
               targetRealIds[dev.deviceId] = true;
+              // Two identical webcams share a label, so the first match wins
+              // and stays the one the emulated identity points at.
+              if (!targetCamRealId) {
+                fakeToReal[config.fakeDeviceId] = dev.deviceId;
+                targetCamRealId = dev.deviceId;
+              }
             }
-            return makeFakeDeviceInfo(dev, {
-              kind: "videoinput",
-              getLabel: () => config.fakeLabel,
-              getDeviceId: () => config.fakeDeviceId,
-              getGroupId: () => config.fakeGroupId
-            });
+            return {
+              masked: true,
+              info: makeFakeDeviceInfo(dev, {
+                kind: "videoinput",
+                getLabel: () => config.fakeLabel,
+                getDeviceId: () => config.fakeDeviceId,
+                getGroupId: () => config.fakeGroupId
+              })
+            };
           }
 
           if (
@@ -194,15 +207,54 @@
           ) {
             if (dev.deviceId) {
               targetMicRealIds[dev.deviceId] = true;
-              if (!isPseudoId(dev.deviceId)) fakeMicToReal[micId.deviceId] = dev.deviceId;
+              if (!isPseudoId(dev.deviceId) && !targetMicRealId) {
+                fakeMicToReal[micId.deviceId] = dev.deviceId;
+                targetMicRealId = dev.deviceId;
+              }
             }
-            return makeFakeMicInfo(dev, micId);
+            return { masked: true, info: makeFakeMicInfo(dev, micId) };
           }
 
-          return dev;
+          return { masked: false, info: dev };
         });
+
+        return hideNonMasked(entries);
       });
     };
+  }
+
+  // Drops every camera/mic the page has no business seeing, leaving only the
+  // emulated ones. A kind is filtered only when it actually has a masked
+  // replacement, so a disconnected virtual camera (or a mic mask that is off)
+  // never leaves the page with an empty device list.
+  function hideNonMasked(entries) {
+    if (!hidingOthers()) return entries.map((e) => e.info);
+
+    const maskedKinds = Object.create(null);
+    entries.forEach((e) => {
+      if (e.masked) maskedKinds[e.info.kind] = true;
+    });
+
+    const seen = Object.create(null);
+    const out = [];
+
+    entries.forEach((e) => {
+      if (!e.masked) {
+        if (!maskedKinds[e.info.kind]) out.push(e.info);
+        return;
+      }
+      // Several real devices can collapse onto one emulated identity (two
+      // identical webcams, or a device exposing the same mic twice), and no
+      // real machine ever repeats a deviceId.
+      const id = e.info.deviceId;
+      if (id) {
+        if (seen[id]) return;
+        seen[id] = true;
+      }
+      out.push(e.info);
+    });
+
+    return out;
   }
 
   // Mimics a MediaDeviceInfo while exposing spoofed values.
@@ -293,6 +345,104 @@
     return constraints;
   }
 
+  // --- Device pinning (only while the other devices are hidden) ---
+  // The page has been told the real devices don't exist, so it must not be able
+  // to open one: a request that doesn't name a device is pinned to the emulated
+  // one instead of falling back to the system default.
+  function hasDeviceId(req) {
+    if (!req || typeof req !== "object") return false;
+    const d = req.deviceId;
+    if (!d) return false;
+    return typeof d === "string" ? !!d : !!(d.exact || d.ideal);
+  }
+
+  function pinConstraints(constraints) {
+    if (!hidingOthers()) return constraints;
+    const src = constraints && typeof constraints === "object" ? constraints : {};
+    let pinned = null;
+
+    const pin = (key, realId) => {
+      const req = src[key];
+      if (!req || !realId || hasDeviceId(req)) return;
+      pinned = pinned || Object.assign({}, src);
+      pinned[key] = Object.assign({}, typeof req === "object" ? req : null, {
+        deviceId: { exact: realId }
+      });
+    };
+
+    pin("video", targetCamRealId);
+    pin("audio", micIdentity() ? targetMicRealId : null);
+    return pinned || constraints;
+  }
+
+  // True when a track in the stream comes from a device the page can't see.
+  function leaksHiddenDevice(stream) {
+    let tracks;
+    try {
+      tracks = stream && stream.getTracks ? stream.getTracks() : [];
+    } catch (e) {
+      return false;
+    }
+    return tracks.some((track) => {
+      const id = trackDeviceId(track);
+      if (!id) return false;
+      if (track.kind === "video") return !!targetCamRealId && !targetRealIds[id];
+      return !!targetMicRealId && !!micIdentity() && !targetMicRealIds[id];
+    });
+  }
+
+  function stopStream(stream) {
+    try {
+      (stream && stream.getTracks ? stream.getTracks() : []).forEach((t) => t.stop());
+    } catch (e) {}
+  }
+
+  // Pinning needs the target's real id, which is only known once the page has
+  // permission to read device labels, so the first request of a page can still
+  // land on a hidden device. Re-resolve afterwards and swap the stream for one
+  // from the emulated device.
+  function enforceHiding(stream, invoke, constraints) {
+    if (!hidingOthers() || !origEnumerate) return Promise.resolve(stream);
+    if (targetCamRealId && !leaksHiddenDevice(stream)) return Promise.resolve(stream);
+
+    return md
+      .enumerateDevices()
+      .catch(() => null)
+      .then(() => {
+        if (!leaksHiddenDevice(stream)) return stream;
+        const pinned = pinConstraints(constraints);
+        if (pinned === constraints) return stream;
+        return invoke(pinned).then(
+          (fresh) => {
+            stopStream(stream);
+            return fresh;
+          },
+          () => stream
+        );
+      });
+  }
+
+  // A pinned device can be busy or gone; falling back keeps the page working.
+  const PIN_FALLBACK_ERRORS = {
+    OverconstrainedError: true,
+    NotFoundError: true,
+    NotReadableError: true
+  };
+
+  function requestStream(invoke, constraints) {
+    const pinned = pinConstraints(constraints);
+    let p = invoke(pinned);
+    if (!p || typeof p.then !== "function") return p;
+
+    if (pinned !== constraints) {
+      p = p.catch((err) => {
+        if (err && PIN_FALLBACK_ERRORS[err.name]) return invoke(constraints);
+        throw err;
+      });
+    }
+    return p.then((stream) => enforceHiding(stream, invoke, constraints));
+  }
+
   // --- getUserMedia ---
   function patchStreamTracks(stream) {
     try {
@@ -333,8 +483,7 @@
     if (!micId) return;
 
     let matched =
-      (micMode() === "custom" && isMicTargetLabel(track.label)) ||
-      !!(realDeviceId && targetMicRealIds[realDeviceId]);
+      isMicTargetLabel(track.label) || !!(realDeviceId && targetMicRealIds[realDeviceId]);
 
     if (!matched && targetMicRealGroupId) {
       try {
@@ -427,7 +576,8 @@
   function wrapGetUserMedia(origFn, thisArg) {
     return function (constraints) {
       if (!config.enabled) return origFn.call(thisArg, constraints);
-      const p = origFn.call(thisArg, translateConstraints(constraints));
+      const invoke = (c) => origFn.call(thisArg, c);
+      const p = requestStream(invoke, translateConstraints(constraints));
       return p && typeof p.then === "function" ? p.then(patchStreamTracks) : p;
     };
   }
@@ -444,7 +594,7 @@
       if (!config.enabled) return orig.call(navigator, constraints, success, error);
       return orig.call(
         navigator,
-        translateConstraints(constraints),
+        pinConstraints(translateConstraints(constraints)),
         (stream) => {
           patchStreamTracks(stream);
           if (typeof success === "function") success(stream);

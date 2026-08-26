@@ -222,6 +222,27 @@
 
   const detectBtn = $("detect");
   const statusEl = $("status");
+  const hideOthersBtn = $("hideOthers");
+
+  const HIDE_TITLES = {
+    on: "Only the emulated devices are visible to websites - click to reveal the rest",
+    off: "Websites see every camera and mic - click to show only the emulated ones"
+  };
+
+  function isHidingOthers() {
+    return hideOthersBtn.getAttribute("aria-pressed") === "true";
+  }
+
+  function setHidingOthers(on) {
+    hideOthersBtn.setAttribute("aria-pressed", on ? "true" : "false");
+    hideOthersBtn.title = on ? HIDE_TITLES.on : HIDE_TITLES.off;
+  }
+
+  // Hiding is only in effect while the mask itself is on, which the icon
+  // reflects by dimming.
+  function updateMaskState() {
+    document.body.classList.toggle("mask-on", !!fields.enabled.checked);
+  }
 
   // Number of cameras currently offered in the dropdown, used to tailor the
   // "you must select a webcam" warning (detect first vs. just pick one).
@@ -246,10 +267,20 @@
   }
 
   const MIC_HINTS = {
-    auto: "Masks the mic linked to the target camera so sites see a built-in combo.",
+    auto: "The mic you pick is masked as the emulated camera's built-in one: matching name, same groupId.",
     off: "Only the webcam is masked; microphones keep their real identity.",
-    custom: "Pick a specific mic and set its fake label and IDs. Match the camera groupId if a site cross-checks both."
+    custom: "Pick a mic and give it your own name and IDs. Match the camera groupId if a site cross-checks both."
   };
+
+  // Both masking modes rewrite the one microphone the user picked, so neither has
+  // anything to mask without a target. Refusing keeps a mask that leaves the real
+  // mic exposed from going live without saying so.
+  function micSelectionProblem() {
+    const mode = fields.micMode.value || DEFAULTS.micMode;
+    return mode !== "off" && !fields.micSelect.value
+      ? 'Select a target microphone, or set Mic mask to "Off".'
+      : "";
+  }
 
   let statusTimer = null;
   function showStatus(msg, isError) {
@@ -333,9 +364,19 @@
   }
 
   function updateMicModeUi() {
-    const mode = fields.micMode.value || "auto";
+    const mode = fields.micMode.value || DEFAULTS.micMode;
+    const masking = mode !== "off";
+    document.body.classList.toggle("mic-target-visible", masking);
     document.body.classList.toggle("mic-custom-visible", mode === "custom");
-    micModeHint.textContent = MIC_HINTS[mode] || MIC_HINTS.auto;
+    // Device names are longer than the half-width picker, so the full one has to
+    // stay reachable on hover.
+    fields.micSelect.title = fields.micSelect.value;
+
+    const missing = masking && !fields.micSelect.value;
+    micModeHint.textContent = missing
+      ? "Pick the microphone this mode should mask."
+      : MIC_HINTS[mode] || MIC_HINTS.off;
+    micModeHint.classList.toggle("hint-warn", missing);
   }
 
   function dismissUpdateModal() {
@@ -374,6 +415,8 @@
 
   function applyToForm(cfg) {
     fields.enabled.checked = !!cfg.enabled;
+    setHidingOthers(!!cfg.hideOtherDevices);
+    updateMaskState();
     fields.fakeLabel.value = cfg.fakeLabel || "";
     fields.fakeDeviceId.value = cfg.fakeDeviceId || "";
     fields.fakeGroupId.value = cfg.fakeGroupId || "";
@@ -384,25 +427,37 @@
       populateCameraProfiles(cfg.cameraProfile || "generic");
       fillCapsForm(profileShape(cfg.cameraProfile || "generic"));
     }
-    fields.micMode.value = cfg.micMode || "auto";
+    fields.micMode.value = cfg.micMode || DEFAULTS.micMode;
     fields.fakeMicLabel.value = cfg.fakeMicLabel || "";
     fields.fakeMicDeviceId.value = cfg.fakeMicDeviceId || "";
     fields.fakeMicGroupId.value = cfg.fakeMicGroupId || "";
-    populateCameras(cfg.targetLabel || "");
-    populateMics(cfg.targetMicLabel || "");
     updateMicModeUi();
+    // Both dropdowns have to be filled before the check runs, or a selection
+    // that is merely still loading reads as a missing device.
+    Promise.all([
+      populateMics(cfg.targetMicLabel || ""),
+      populateCameras(cfg.targetLabel || "")
+    ]).then(() => {
+      updateMicModeUi();
+      // A stored config can go stale, and a mask that rewrites nothing has to say
+      // so instead of quietly staying on.
+      if (!fields.enabled.checked) return;
+      const problem = micSelectionProblem();
+      if (problem) refuseEnable(problem);
+    });
   }
 
   function readForm() {
     return {
       enabled: fields.enabled.checked,
+      hideOtherDevices: isHidingOthers(),
       targetLabel: fields.cameraSelect.value || "",
       fakeLabel: fields.fakeLabel.value.trim() || DEFAULTS.fakeLabel,
       fakeDeviceId: fields.fakeDeviceId.value.trim() || DEFAULTS.fakeDeviceId,
       fakeGroupId: fields.fakeGroupId.value.trim() || DEFAULTS.fakeGroupId,
       cameraProfile: fields.cameraProfile.value || "generic",
       cameraCaps: (fields.cameraProfile.value || "generic") === "custom" ? collectCaps() : null,
-      micMode: fields.micMode.value || "auto",
+      micMode: fields.micMode.value || DEFAULTS.micMode,
       targetMicLabel: fields.micSelect.value || "",
       fakeMicLabel: fields.fakeMicLabel.value.trim() || deriveMicLabel(fields.fakeLabel.value, DEFAULTS.fakeLabel, DEFAULTS.fakeMicLabel),
       fakeMicDeviceId: fields.fakeMicDeviceId.value.trim() || DEFAULTS.fakeMicDeviceId,
@@ -449,7 +504,9 @@
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== "local") return;
     if (changes.__availableCameras) populateCameras(fields.cameraSelect.value);
-    if (changes.__availableMics) populateMics(fields.micSelect.value);
+    if (changes.__availableMics) {
+      populateMics(fields.micSelect.value).then(updateMicModeUi);
+    }
     if (changes.__updateCheck || changes.__updateBannerDismissed) {
       chrome.storage.local.get(
         { __updateCheck: null, __updateBannerDismissed: "" },
@@ -460,17 +517,66 @@
     }
   });
 
-  fields.enabled.addEventListener("change", () => {
-    if (fields.enabled.checked && !fields.cameraSelect.value) {
-      fields.enabled.checked = false;
-      denyEnable();
-      showStatus(noTargetMessage(), true);
+  function refuseEnable(message) {
+    fields.enabled.checked = false;
+    updateMaskState();
+    denyEnable();
+    showStatus(message, true);
+    // The refusal has to reach storage too: a stored enabled:true would go on
+    // masking pages with the setup that was just rejected.
+    chrome.storage.local.set({ enabled: false });
+  }
+
+  // Turning the mask on and saving both go through here so that what gets stored
+  // is exactly what was validated. Writing "enabled" on its own would leave the
+  // stored mic setup - which is what pages actually get - unchecked.
+  function applyForm(successMessage) {
+    const data = readForm();
+    if (data.enabled && !data.targetLabel) {
+      refuseEnable(noTargetMessage());
       return;
     }
-    chrome.storage.local.set({ enabled: fields.enabled.checked });
+    const micProblem = micSelectionProblem();
+    if (micProblem) {
+      if (data.enabled) refuseEnable(micProblem);
+      else showStatus(micProblem, true);
+      return;
+    }
+    if (data.cameraCaps) fillCapsForm(data.cameraCaps);
+    chrome.storage.local.set(data, () => showStatus(successMessage));
+  }
+
+  fields.enabled.addEventListener("change", () => {
+    updateMaskState();
+    if (!fields.enabled.checked) {
+      chrome.storage.local.set({ enabled: false });
+      return;
+    }
+    applyForm("Mask on. Reload the page to apply.");
+  });
+
+  hideOthersBtn.addEventListener("click", () => {
+    const on = !isHidingOthers();
+    setHidingOthers(on);
+    chrome.storage.local.set({ hideOtherDevices: on }, () => {
+      showStatus(
+        on
+          ? "Other cameras and mics hidden from websites. Reload the page."
+          : "All cameras and mics are visible again. Reload the page."
+      );
+    });
   });
 
   fields.micMode.addEventListener("change", updateMicModeUi);
+  fields.micSelect.addEventListener("change", updateMicModeUi);
+
+  // Plugging or unplugging a device changes what the dropdowns should offer.
+  try {
+    navigator.mediaDevices.addEventListener("devicechange", () => {
+      populateCameras(fields.cameraSelect.value);
+      populateMics(fields.micSelect.value).then(updateMicModeUi);
+    });
+  } catch (e) {}
 
   // Picking a model presets the name and loads its full capability set, so
   // label and capabilities stay coherent. "Custom" keeps the edited values.
@@ -491,18 +597,7 @@
     advancedMicToggle.setAttribute("aria-expanded", String(visible));
   });
 
-  $("save").addEventListener("click", () => {
-    const data = readForm();
-    if (data.enabled && !data.targetLabel) {
-      fields.enabled.checked = false;
-      denyEnable();
-      showStatus(noTargetMessage(), true);
-      return;
-    }
-    // Reflect any clamped capability values back into the editor.
-    if (data.cameraCaps) fillCapsForm(data.cameraCaps);
-    chrome.storage.local.set(data, () => showStatus("Saved. Reload the page to apply."));
-  });
+  $("save").addEventListener("click", () => applyForm("Saved. Reload the page to apply."));
 
   function pickCameraIdentity() {
     return new Promise((resolve) => {

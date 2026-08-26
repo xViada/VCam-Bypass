@@ -7,6 +7,7 @@
 
   const CONFIG_KEYS = new Set([
     "enabled",
+    "hideOtherDevices",
     "targetLabel",
     "fakeLabel",
     "fakeDeviceId",
@@ -29,13 +30,14 @@
   function createDefaults() {
     return {
       enabled: false,
+      hideOtherDevices: false,
       targetLabel: "",
       fakeLabel: DEFAULT_FAKE_LABEL,
       fakeDeviceId: randomHex(64),
       fakeGroupId: randomHex(64),
       cameraProfile: "generic",
       cameraCaps: null,
-      micMode: "auto",
+      micMode: "off",
       targetMicLabel: "",
       fakeMicLabel: DEFAULT_MIC_LABEL,
       fakeMicDeviceId: randomHex(64),

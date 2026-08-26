@@ -117,6 +117,55 @@
         display: flex;
       }
 
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        flex: 0 0 auto;
+      }
+
+      /* ---------- Icon toggle (hide other devices) ---------- */
+      .icon-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 23px;
+        padding: 0;
+        margin: 0;
+        border: 1px solid var(--border-strong);
+        border-radius: 7px;
+        background: var(--surface-2);
+        color: var(--text-dim);
+        cursor: pointer;
+        line-height: 0;
+        flex: 0 0 auto;
+        transition: background 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
+      }
+      .icon-toggle svg {
+        display: block;
+      }
+      .icon-toggle:hover {
+        color: var(--text);
+        border-color: var(--accent);
+      }
+      .icon-toggle .icon-on,
+      .icon-toggle[aria-pressed="true"] .icon-off {
+        display: none;
+      }
+      .icon-toggle[aria-pressed="true"] .icon-on {
+        display: block;
+      }
+      .icon-toggle[aria-pressed="true"] {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+      /* Hiding only happens while the mask itself is on. */
+      body:not(.mask-on) .icon-toggle[aria-pressed="true"] {
+        opacity: 0.5;
+      }
+
       /* ---------- Toggle switch ---------- */
       .switch {
         position: relative;
@@ -124,6 +173,7 @@
         width: 40px;
         height: 23px;
         flex: 0 0 auto;
+        margin: 0;
       }
       .switch input {
         opacity: 0;
@@ -349,6 +399,9 @@
         margin: 7px 0 0;
         line-height: 1.4;
       }
+      .hint-warn {
+        color: #e5c07b;
+      }
 
       /* ---------- Advanced collapsibles ---------- */
       .advanced-toggle {
@@ -448,6 +501,24 @@
       }
       body.cap-autofocus-visible .cap-ctrl#capFocusRow {
         display: block;
+      }
+
+      /* The mode and the mic it applies to share one line: a second full row here
+         would push the popup past the 600px Chrome gives it before scrolling. */
+      .mic-grid {
+        display: grid;
+        grid-template-columns: 104px 1fr;
+        gap: 7px;
+      }
+      .mic-target {
+        display: none;
+      }
+      body.mic-target-visible .mic-target {
+        display: block;
+      }
+      /* Nothing to pick in "Off", so there is no second column to leave room for. */
+      body:not(.mic-target-visible) .mic-grid {
+        grid-template-columns: 1fr;
       }
 
       .mic-custom {
@@ -690,10 +761,24 @@
           <span id="headerUpdateText">New update available</span>
         </a>
       </div>
-      <label class="switch" title="Enable / disable mask">
-        <input type="checkbox" id="enabled" />
-        <span class="slider"></span>
-      </label>
+      <div class="header-actions">
+        <button id="hideOthers" type="button" class="icon-toggle" aria-pressed="false" aria-label="Hide the other cameras and mics from websites" title="Websites see every camera and mic - click to show only the emulated ones">
+          <svg class="icon-off" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          <svg class="icon-on" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M10.7 5.1A9.9 9.9 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1" />
+            <path d="M6.6 6.6A17 17 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6" />
+            <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+            <path d="m2 2 20 20" />
+          </svg>
+        </button>
+        <label class="switch" title="Enable / disable mask">
+          <input type="checkbox" id="enabled" />
+          <span class="slider"></span>
+        </label>
+      </div>
     </div>
 
     <div class="card">
@@ -796,25 +881,28 @@
       </div>
 
       <div class="row">
-        <label for="micMode">Mic mask</label>
-        <select id="micMode">
-          <option value="auto">Auto (linked to camera)</option>
-          <option value="off">Off (video only)</option>
-          <option value="custom">Custom (pick a mic)</option>
-        </select>
+        <div class="mic-grid">
+          <div>
+            <label for="micMode">Mic mask</label>
+            <select id="micMode">
+              <option value="off">Off</option>
+              <option value="auto">Auto</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div class="mic-target">
+            <label for="micSelect">Target microphone</label>
+            <select id="micSelect">
+              <option value="">Select a microphone</option>
+            </select>
+          </div>
+        </div>
         <p class="hint" id="micModeHint">
-          Masks the mic linked to the target camera so sites see a built-in combo.
+          Only the webcam is masked; microphones keep their real identity.
         </p>
       </div>
 
       <div class="mic-custom">
-        <div class="row">
-          <label for="micSelect">Target microphone</label>
-          <select id="micSelect">
-            <option value="">Select a microphone</option>
-          </select>
-        </div>
-
         <div class="row">
           <div class="row-head">
             <label for="fakeMicLabel">Fake mic name (label)</label>

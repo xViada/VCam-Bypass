@@ -12,13 +12,14 @@
   // Fallback only; the stable deviceId/groupId are persisted on install.
   const DEFAULTS = {
     enabled: false,
+    hideOtherDevices: false,
     targetLabel: "",
     fakeLabel: "Integrated Webcam (1bcf:2b95)",
     fakeDeviceId: randomHex(64),
     fakeGroupId: randomHex(64),
     cameraProfile: "generic",
     cameraCaps: null,
-    micMode: "auto",
+    micMode: "off",
     targetMicLabel: "",
     fakeMicLabel: "Internal Microphone (1bcf:2b95)",
     fakeMicDeviceId: randomHex(64),

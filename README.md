@@ -22,14 +22,17 @@ operating system or the actual video.
   - `navigator.mediaDevices.enumerateDevices()`: it rewrites the target device's
     `label`, `deviceId` and `groupId` to physical-webcam values. The target is
     the one you picked in the dropdown; a target must be selected for the mask
-    to do anything.
+    to do anything. With **Hide other devices** on, every camera and microphone
+    that isn't the emulated one is dropped from the list.
   - `navigator.mediaDevices.getUserMedia()` (and the legacy variants): translates
     the fake `deviceId` in the constraints back to the real one before requesting
     the stream, then masks the video tracks: it spoofs the `label` and
     synthesizes a full physical-camera `getSettings()` / `getCapabilities()` from
     the selected model profile, while keeping the real (canvas-verifiable)
     resolution and frame rate. When mic mask is on, audio devices/tracks are
-    rewritten the same way.
+    rewritten the same way. With **Hide other devices** on, a request that
+    doesn't name a device is pinned to the emulated one, so a page can't open a
+    device it was told doesn't exist.
   - `MediaStreamTrack.prototype.getSettings` / `getCapabilities` to mask the real
     `deviceId` (and rebuild the camera surface) on any track.
 - `profiles.js` is loaded in the **MAIN world** right before `inject.js` (and
@@ -69,13 +72,24 @@ operating system or the actual video.
 - After installing or changing the config in the popup, **reload the page** where
   you use the camera so the changes take effect.
 - In the site's camera selector, the virtual camera will appear with the fake name
-  (by default `Integrated Webcam (1bcf:2b95)`, the `name (vendor:product)` format
+  (e.g. `Integrated Webcam (1bcf:2b95)`, the `name (vendor:product)` format
   Chrome uses for real USB webcams).
 
 ## Configuration (popup)
 
 - **Enabled**: turns the mask on/off without uninstalling. You must select a
   target webcam first; the mask can't be enabled without one.
+- **Hide other devices** (the eye button next to the on/off switch): while the
+  mask is enabled, websites only see the emulated devices. Every other webcam
+  and microphone is removed from `enumerateDevices()`, and a `getUserMedia()`
+  call that doesn't name a device is pinned to the emulated one (falling back to
+  normal behaviour if that device is busy or unplugged). Cameras are only
+  filtered when the target camera is actually present, and microphones only when
+  the mic mask is on, so a page never ends up with an empty device list.
+  Speakers and other outputs are left alone. If several real devices map onto
+  the same emulated identity (two webcams with an identical label, or a device
+  that exposes the same mic twice), they collapse into a single entry, since no
+  real machine ever repeats a `deviceId`.
 - **Target webcam**: dropdown with the available webcams to choose which one to
   act on. A webcam must be selected — if none is available, use **Detect cameras**
   first, then pick one. The list is filled in two ways:
@@ -112,15 +126,19 @@ install and kept stable, just like Chrome's real SHA-256 ids.
 
 The **Mic mask** dropdown controls how microphones are handled:
 
-- **Auto (linked to camera)** *(default)*: masks the mic that belongs to the
-  same physical device as the target camera (shares its `groupId`). It reuses the
-  camera's fake `groupId` and a matching label (e.g.
-  `Microphone (Integrated Webcam) (1bcf:2b95)`) so sites see a real built-in
-  webcam + mic combo. If the camera has no linked mic (e.g. a virtual camera), it
-  falls back to the system's default microphone.
-- **Off (video only)**: leaves microphones untouched.
-- **Custom (pick a mic)**: mask a specific microphone with your own fake name,
-  `deviceId` and `groupId`.
+Both masking modes rewrite the one microphone you select as **Target
+microphone**; they differ only in the identity it gets. Neither borrows a mic you
+didn't pick, so the popup refuses to enable the mask until you select one (or set
+**Off**).
+
+- **Auto**: the selected mic is passed off as the emulated camera's own built-in
+  mic. It gets the camera's fake `groupId` and a matching label (e.g.
+  `Microphone (Integrated Webcam) (1bcf:2b95)`), so sites see a real built-in
+  webcam + mic combo even when the camera is virtual and the mic is a separate
+  device.
+- **Off** *(default)*: leaves microphones untouched, video only.
+- **Custom**: same masking, but with the fake name, `deviceId` and `groupId` you
+  set yourself.
 
 Real mic names are detected together with cameras (the **Detect cameras** button
 and granted pages request mic permission too).
