@@ -70,6 +70,27 @@
         color: var(--text-dim);
         max-width: 560px;
       }
+
+      /* ---------- Section labels ---------- */
+      .section-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 22px 0 10px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-faint);
+      }
+      .section-label:first-of-type {
+        margin-top: 0;
+      }
+      .section-label svg {
+        opacity: 0.65;
+      }
+
+      /* ---------- Cards ---------- */
       .card {
         background: var(--surface);
         border: 1px solid var(--border);
@@ -77,117 +98,70 @@
         padding: 16px 18px;
         margin-bottom: 14px;
       }
-      .verdict {
-        display: flex;
-        gap: 16px;
-        align-items: center;
-        position: relative;
-        overflow: hidden;
-        padding: 18px;
-        transition: border-color 0.3s;
-      }
-      .verdict::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        background: radial-gradient(460px 130px at 0% 50%, var(--vc, transparent), transparent 70%);
-        transition: opacity 0.3s;
-        pointer-events: none;
-      }
-      .verdict.ok {
-        --vc: rgba(74, 222, 128, 0.16);
-        border-color: rgba(74, 222, 128, 0.35);
-      }
-      .verdict.warn {
-        --vc: rgba(251, 191, 36, 0.16);
-        border-color: rgba(251, 191, 36, 0.32);
-      }
-      .verdict.err {
-        --vc: rgba(248, 113, 113, 0.16);
-        border-color: rgba(248, 113, 113, 0.32);
-      }
-      .verdict.ok::before,
-      .verdict.warn::before,
-      .verdict.err::before {
-        opacity: 1;
-      }
 
-      /* Status icon */
-      .v-icon {
-        position: relative;
-        flex: 0 0 auto;
-        width: 50px;
-        height: 50px;
+      /* ---------- Status line ---------- */
+      .status-line {
         display: flex;
-        align-items: center;
-        justify-content: center;
+        gap: 10px;
+        padding-bottom: 14px;
+        margin-bottom: 14px;
+        border-bottom: 1px solid var(--border);
+      }
+      .status-dot {
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
-        color: #fff;
-        background: linear-gradient(135deg, #3a3f4b, #2c303a);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+        flex: 0 0 auto;
+        margin-top: 3px;
+        background: var(--border-strong);
         transition: background 0.3s, box-shadow 0.3s;
       }
-      .v-icon svg {
-        width: 26px;
-        height: 26px;
-      }
-      .verdict.ok .v-icon {
-        background: linear-gradient(135deg, #34d399, #22c55e);
-        box-shadow: 0 0 0 5px rgba(74, 222, 128, 0.14), 0 8px 20px rgba(34, 197, 94, 0.32);
-      }
-      .verdict.warn .v-icon {
-        background: linear-gradient(135deg, #fbbf24, #f59e0b);
-        box-shadow: 0 0 0 5px rgba(251, 191, 36, 0.14), 0 8px 20px rgba(245, 158, 11, 0.3);
-      }
-      .verdict.err .v-icon {
-        background: linear-gradient(135deg, #f87171, #ef4444);
-        box-shadow: 0 0 0 5px rgba(248, 113, 113, 0.14), 0 8px 20px rgba(239, 68, 68, 0.3);
-      }
-      /* Success ripple */
-      .verdict.ok .v-icon::after {
-        content: "";
-        position: absolute;
-        inset: -5px;
-        border-radius: 50%;
-        border: 2px solid rgba(74, 222, 128, 0.6);
-        animation: v-pulse 1.8s ease-out infinite;
-      }
-      @keyframes v-pulse {
-        0% {
-          transform: scale(0.9);
-          opacity: 0.7;
-        }
-        100% {
-          transform: scale(1.55);
-          opacity: 0;
-        }
-      }
-      /* Pending spinner */
-      .v-icon.spin svg {
-        animation: v-spin 0.9s linear infinite;
-      }
-      @keyframes v-spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      .v-body {
-        position: relative;
-        z-index: 1;
+      .status-body {
+        flex: 1;
         min-width: 0;
       }
-      .verdict h2 {
-        font-size: 16px;
-        margin: 0 0 3px;
-        letter-spacing: -0.01em;
-      }
-      .verdict p {
-        margin: 0;
+      .status-title {
         font-size: 12.5px;
+        font-weight: 600;
         color: var(--text-dim);
+        transition: color 0.3s;
       }
+      .status-detail {
+        font-size: 11.5px;
+        color: var(--text-faint);
+        margin-top: 2px;
+        line-height: 1.4;
+      }
+      .status-detail:empty {
+        display: none;
+      }
+      .status-line.pending .status-dot {
+        animation: dot-pulse 1.4s ease-in-out infinite;
+      }
+      @keyframes dot-pulse {
+        0%, 100% { opacity: 0.35; }
+        50% { opacity: 1; }
+      }
+      .status-line.ok .status-dot {
+        background: var(--ok);
+        box-shadow: 0 0 6px rgba(74, 222, 128, 0.45);
+      }
+      .status-line.ok .status-title { color: var(--ok); }
+      .status-line.warn .status-dot {
+        background: var(--warn);
+        box-shadow: 0 0 6px rgba(251, 191, 36, 0.35);
+      }
+      .status-line.warn .status-title { color: var(--warn); }
+      .status-line.err .status-dot {
+        background: var(--err);
+        box-shadow: 0 0 6px rgba(248, 113, 113, 0.35);
+      }
+      .status-line.err .status-title { color: var(--err); }
+      .status-line.info .status-dot {
+        background: var(--accent);
+        box-shadow: 0 0 6px rgba(91, 140, 255, 0.35);
+      }
+      .status-line.info .status-title { color: var(--accent); }
       .controls {
         display: flex;
         flex-wrap: wrap;
@@ -302,6 +276,70 @@
         color: var(--text-faint);
         margin: 12px 0 0;
       }
+
+      /* ---------- Audio waveform ---------- */
+      .meter-wrap {
+        position: relative;
+        width: 100%;
+        border-radius: 10px;
+        background: #000;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+      }
+      .meter-wrap canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      .meter-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 9px 14px;
+        pointer-events: none;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
+      }
+      .meter-hint {
+        font-size: 11px;
+        color: var(--text-faint);
+        margin: 0;
+        transition: color 0.3s;
+      }
+      .meter-wrap.active .meter-hint {
+        color: rgba(91, 140, 255, 0.7);
+      }
+      .meter-level {
+        font-size: 12px;
+        font-weight: 600;
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        color: rgba(255, 255, 255, 0.35);
+        transition: color 0.3s;
+      }
+      .meter-wrap.active .meter-level {
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      /* ---------- Device list sections ---------- */
+      .dl-section {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--text-faint);
+        margin: 12px 0 6px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border);
+      }
+      .dl-section:first-child {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+      }
+
       .gh-link {
         display: flex;
         align-items: center;
@@ -324,19 +362,27 @@
         <img src="icons/extension_icon48.png" alt="VCam Bypass icon" />
         <div>
           <h1>Test the mask</h1>
-          <p>This page shows exactly what a website sees when it opens your camera.</p>
+          <p>This page shows exactly what a website sees when it opens your camera and microphone.</p>
         </div>
       </div>
 
-      <div class="card verdict" id="verdict">
-        <div class="v-icon spin" id="verdictIcon"></div>
-        <div class="v-body">
-          <h2 id="verdictTitle">Preparing test...</h2>
-          <p id="verdictText">Grant camera and microphone access when your browser asks.</p>
-        </div>
+      <!-- ===== Camera ===== -->
+      <div class="section-label">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m22 8-6 4 6 4V8Z" />
+          <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
+        </svg>
+        Camera
       </div>
 
       <div class="card">
+        <div class="status-line pending" id="camVerdict">
+          <span class="status-dot"></span>
+          <span class="status-body">
+            <span class="status-title" id="camVerdictTitle">Preparing camera test&hellip;</span>
+            <span class="status-detail" id="camVerdictText">Grant camera access when your browser asks.</span>
+          </span>
+        </div>
         <div class="controls">
           <label for="camPick">Camera</label>
           <select id="camPick"></select>
@@ -355,14 +401,61 @@
         </div>
 
         <div class="card">
-          <p class="card-title">What the site sees (active camera)</p>
-          <div id="report"><p class="empty">Run the test to see the reported identity, settings and capabilities.</p></div>
+          <p class="card-title">What the site sees (camera)</p>
+          <div id="camReport"><p class="empty">Run the test to see the reported identity, settings and capabilities.</p></div>
         </div>
       </div>
 
+      <!-- ===== Microphone ===== -->
+      <div class="section-label">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+          <line x1="12" x2="12" y1="19" y2="22" />
+        </svg>
+        Microphone
+      </div>
+
       <div class="card">
-        <p class="card-title">All cameras reported by enumerateDevices()</p>
-        <div id="deviceList"><p class="empty">No devices yet. Click "Grant / refresh devices".</p></div>
+        <div class="status-line pending" id="micVerdict">
+          <span class="status-dot"></span>
+          <span class="status-body">
+            <span class="status-title" id="micVerdictTitle">Preparing mic test&hellip;</span>
+            <span class="status-detail" id="micVerdictText">Grant microphone access when your browser asks.</span>
+          </span>
+        </div>
+        <div class="controls">
+          <label for="micPick">Microphone</label>
+          <select id="micPick"></select>
+        </div>
+        <p class="hint">
+          Pick the microphone you masked (it appears with the fake name).
+          If mic mask is off, this shows your real mic identity.
+        </p>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <p class="card-title">Audio input</p>
+          <div class="meter-wrap" id="meterWrap">
+            <canvas id="audioCanvas"></canvas>
+            <div class="meter-overlay">
+              <span class="meter-hint" id="audioLabel">Speak or make a sound</span>
+              <span class="meter-level" id="audioLevel">&mdash;</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <p class="card-title">What the site sees (microphone)</p>
+          <div id="micReport"><p class="empty">Run the test to see the reported identity and settings.</p></div>
+        </div>
+      </div>
+
+      <!-- ===== All devices ===== -->
+      <div class="card">
+        <p class="card-title">All devices reported by enumerateDevices()</p>
+        <div id="deviceList"><p class="empty">No devices yet. Click &ldquo;Refresh devices&rdquo;.</p></div>
       </div>
 
       <a class="gh-link" href="https://github.com/xViada/VCam-Bypass" target="_blank" rel="noopener">
