@@ -1,7 +1,7 @@
 # Additional Terms (GNU GPL v3, Section 7)
 
 VCam Bypass
-Copyright (C) 2026 xViada <https://github.com/xViada>
+Copyright (C) 2026 xViada [https://github.com/xViada](https://github.com/xViada)
 
 VCam Bypass is licensed under the GNU General Public License, version 3
 (see [LICENSE](LICENSE)). As permitted by Section 7 of that license, the
@@ -13,17 +13,17 @@ any modified or redistributed version of it, in whole or in part.
 Any version of this work that is conveyed to others, modified or not, must
 preserve the following attribution, unaltered except for translation:
 
-> Based on VCam Bypass by xViada — https://github.com/xViada/VCam-Bypass
+> Based on VCam Bypass by xViada — [https://github.com/xViada/VCam-Bypass](https://github.com/xViada/VCam-Bypass)
 
 This attribution must:
 
-a) remain, unaltered except for translation, in this file, in the LICENSE
-   file and in the copyright notices at the top of the source files; and
+a) remain, unaltered except for translation, in this file and in the
+   copyright notices at the top of the source files; and
 
 b) be shown in the program's interface, where a user can find it during
    normal use, such as the extension's popup, options page or "About"
    section. The visible credit is "VCam Bypass by xViada", as a working
-   link to https://github.com/xViada/VCam-Bypass. The full attribution
+   link to [https://github.com/xViada/VCam-Bypass](https://github.com/xViada/VCam-Bypass). The full attribution
    line above is the title of that link.
 
 ## 2. No misrepresentation of origin (Section 7(c))
