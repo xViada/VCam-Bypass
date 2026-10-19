@@ -43,7 +43,7 @@ window.FUNDING_CONFIG = {
       name: 'Bitcoin',
       symbol: 'BTC',
       network: 'Bitcoin network (on-chain)',
-      address: '13UisxBetuSDtKczhKHTYphcerAnHfT4S9',
+      address: '16p49pVZQ4T7kQjAvh14ZUmKkSuEQAPC9r',
       uriScheme: 'bitcoin',
       note: 'Do not send Lightning payments to this address.'
     },
@@ -52,7 +52,7 @@ window.FUNDING_CONFIG = {
       name: 'Ethereum',
       symbol: 'ETH',
       network: 'Ethereum mainnet (ERC-20)',
-      address: '0x97DF2613507290D9b786931aD1866124ad286333',
+      address: '0x008C602cA8cb0AB85AE966F3F41434e9A74281Dc',
       uriScheme: 'ethereum',
       note: 'Accepts ETH and ERC-20 tokens on Ethereum mainnet.'
     },
@@ -61,7 +61,7 @@ window.FUNDING_CONFIG = {
       name: 'Monero',
       symbol: 'XMR',
       network: 'Monero network',
-      address: '44eoEfHGPAi5yzqvihwc4tTk53CeG2CduVqEKppdAgHs3BJYi9o3QTZSDdEmR5m5i4SDrMcHGfTEvBJFmAPjbVvRLfNQ2y2',
+      address: '492LAboJAgf44q7nUDkj4KWMgXYMNj46XS7cuRo1pHtZ1fk9okcwZMLdyb3pYNwDFsPs8wgBvTfCw2HuoQCrVXZT7hhU2HP',
       uriScheme: 'monero',
       note: ''
     },
@@ -70,7 +70,7 @@ window.FUNDING_CONFIG = {
       name: 'Solana',
       symbol: 'SOL',
       network: 'Solana network',
-      address: 'FdmiB54uD2tVZKtfpqNWPhNCXWrDuTBk5KoCMySne6Tf',
+      address: 'AebvVuof9gp3ty2FntjPAncYq7RJivqeVt3HT5Cvo6RF',
       uriScheme: 'solana',
       note: 'Accepts SOL and SPL tokens on Solana.'
     },
@@ -79,7 +79,7 @@ window.FUNDING_CONFIG = {
       name: 'Litecoin',
       symbol: 'LTC',
       network: 'Litecoin network',
-      address: 'LTzrAsDP52KUBkFg3VbWQq8okQAhTv6Sa5',
+      address: 'LYLeS47aHU3wQJMtER3WXiuBPMaiV2G8A7',
       uriScheme: 'litecoin',
       note: ''
     },
@@ -88,7 +88,7 @@ window.FUNDING_CONFIG = {
       name: 'TRON',
       symbol: 'TRX',
       network: 'TRON network (TRC-20)',
-      address: 'TSiA9LcQJSnq2ewbN6wgFfeFKygwVSGxNE',
+      address: 'TJTVK7br1Cn7vic4Es4fJF9aHTzxb5jgu3',
       uriScheme: 'tron',
       note: 'Accepts TRX and TRC-20 tokens on TRON.'
     }
