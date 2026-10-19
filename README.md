@@ -44,7 +44,7 @@ operating system or the actual video.
   collects the real webcam names visible on the page and stores them for the popup.
 - `background.js` is a service worker that, on install, generates and persists
   random, stable `deviceId`/`groupId` values, seeds the default capability profile
-  and picks a random webcam name from the usb.ids list (with a fallback default).
+  and assigns the matching name from that profile.
 - `popup.html` / `popup.js` provide the configuration UI, including a **Test it**
   button (opens `test.html`) and a **How to use** button (opens `guide.html`).
 - `request.html` / `request.js` is a page that requests camera permission to read
@@ -116,11 +116,10 @@ operating system or the actual video.
   switches the model to **Custom**; ranges are validated and clamped on save.
 
 The fake **name** uses Chrome's real `name (vendor:product)` format. On a fresh
-install `background.js` picks one randomly from the webcam entries of the
-[usb.ids](http://www.linux-usb.org/usb.ids) list (falling back to
-`Integrated Webcam (1bcf:2b95)`), while **New identity** uses the emulated
-model's name. The **deviceId** / **groupId** are random 64-char hex generated on
-install and kept stable, just like Chrome's real SHA-256 ids.
+install `background.js` assigns the name of the randomly chosen emulated model
+(for example `Integrated Webcam (1bcf:2b95)`). **New identity** does the same.
+The **deviceId** / **groupId** are random 64-char hex generated on install and
+kept stable, just like Chrome's real SHA-256 ids.
 
 ### Microphone
 
@@ -149,7 +148,7 @@ and granted pages request mic permission too).
 - `inject.js` - patches the mediaDevices APIs (MAIN world).
 - `profiles.js` - capability profiles for real webcam models and the builders for the spoofed getSettings/getCapabilities (shared by inject, popup and background).
 - `bridge.js` - bridge between `chrome.storage` and the page (ISOLATED world).
-- `background.js` - service worker that persists random deviceId/groupId, seeds the default capability profile and picks a random webcam name from usb.ids.
+- `background.js` - service worker that persists random deviceId/groupId and seeds the default capability profile and its matching name.
 - `popup.html` / `popup.js` - configuration UI (with **Test it** and **How to use** buttons).
 - `request.html` / `request.js` - page that requests camera and microphone permission and detects the real names.
 - `test.html` / `test.js` - verification page that shows what a website sees when it opens your camera.

@@ -6,8 +6,6 @@
   "homepage_url": "https://github.com/xViada/VCam-Bypass",
   "permissions": ["storage"],
   "host_permissions": [
-    "https://www.linux-usb.org/*",
-    "http://www.linux-usb.org/*",
     "https://api.github.com/*"
   ],
   "background": {
