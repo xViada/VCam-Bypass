@@ -3,6 +3,7 @@
   "name": "VCam Bypass",
   "version": "1.3.0",
   "description": "Makes any virtual camera appear in the browser as a physical webcam by spoofing label, deviceId, groupId and capabilities.",
+  "homepage_url": "https://github.com/xViada/VCam-Bypass",
   "permissions": ["storage"],
   "host_permissions": [
     "https://www.linux-usb.org/*",

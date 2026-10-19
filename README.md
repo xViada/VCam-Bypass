@@ -157,12 +157,25 @@ and granted pages request mic permission too).
 
 ## Disclaimer
 
-This software is provided **for educational and research purposes only**. The
-author (**xViada**) is **not responsible** for any use, misuse, or consequences
-arising from the use of this extension. You are solely responsible for ensuring
-that your use complies with applicable laws, terms of service, and policies of
-the websites or services you interact with. Use at your own risk.
+The author (**xViada**) is **not responsible** for any use of this extension
+or for the consequences of that use. You are responsible for complying with
+applicable laws, terms of service, and policies of the websites or services
+you interact with. Use at your own risk.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Copyright (c) 2026 [xViada](https://github.com/xViada).
+VCam Bypass is free software, licensed under the [GNU General Public License v3.0](LICENSE), with additional terms under Section 7 of the GPL. Copyright (C) 2026 [xViada](https://github.com/xViada).
+
+In short, you may use, study, modify and share this extension, as long as:
+
+- any version you distribute is also released under the GPL v3, with its source code available;
+- your version keeps the attribution "Based on VCam Bypass by xViada — https://github.com/xViada/VCam-Bypass". In the interface the visible credit is "VCam Bypass by xViada", linking to that repository, with the full line as the link's title;
+- your version uses its own name, its own icon and its own extension ID, and is not presented as the original or as endorsed by me.
+
+This license does not grant trademark rights in the name "VCam Bypass", the handle "xViada", or the project logos. See ADDITIONAL-TERMS.md for the exact terms.
+
+## Official builds
+
+The only official source of VCam Bypass is this repository: [https://github.com/xViada/VCam-Bypass](https://github.com/xViada/VCam-Bypass)
+
+Any copy published in a browser extension store by someone else is not made, reviewed or endorsed by me. If you find one that hides where it comes from, please let me know by opening an issue.

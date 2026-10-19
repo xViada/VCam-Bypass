@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 xViada <https://github.com/xViada>
+ * Based on VCam Bypass by xViada — https://github.com/xViada/VCam-Bypass
+ * Licensed under the GNU GPL version 3. See LICENSE and ADDITIONAL-TERMS.md.
+ */
+
 (function () {
   "use strict";
 
