@@ -129,8 +129,9 @@
         flex: 0 0 auto;
       }
 
-      /* ---------- Icon toggle (hide other devices) ---------- */
-      .icon-toggle {
+      /* ---------- Header icon buttons ---------- */
+      .icon-toggle,
+      .icon-link {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -145,14 +146,31 @@
         cursor: pointer;
         line-height: 0;
         flex: 0 0 auto;
+        text-decoration: none;
         transition: background 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
       }
-      .icon-toggle svg {
+      .icon-toggle svg,
+      .icon-link svg {
         display: block;
       }
       .icon-toggle:hover {
         color: var(--text);
         border-color: var(--accent);
+      }
+      .icon-link {
+        transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+      }
+      .icon-link svg {
+        fill: none;
+      }
+      .icon-link:hover {
+        color: #fff;
+        border-color: #fb7185;
+        background: #fb7185;
+        box-shadow: 0 0 14px rgba(251, 113, 133, 0.75);
+      }
+      .icon-link:hover svg {
+        fill: currentColor;
       }
       .icon-toggle .icon-on,
       .icon-toggle[aria-pressed="true"] .icon-off {
@@ -776,6 +794,11 @@
         </a>
       </div>
       <div class="header-actions">
+        <a class="icon-link" href="https://xviada.github.io/VCam-Bypass/donate/" target="_blank" rel="noopener" aria-label="Support this project" title="Support this project">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+          </svg>
+        </a>
         <button id="hideOthers" type="button" class="icon-toggle" aria-pressed="false" aria-label="Hide the other cameras and mics from websites" title="Websites see every camera and mic - click to show only the emulated ones">
           <svg class="icon-off" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" />

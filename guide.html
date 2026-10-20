@@ -228,13 +228,48 @@
       .note b {
         color: var(--text);
       }
+      .support {
+        margin: 16px 0 0;
+        text-align: center;
+        font-size: 12.5px;
+        color: var(--text-faint);
+      }
+      .support a {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-left: 4px;
+        padding: 4px 10px 4px 8px;
+        border: 1px solid var(--border-strong);
+        border-radius: 999px;
+        background: var(--surface-2);
+        color: var(--text-dim);
+        font-weight: 600;
+        text-decoration: none;
+        vertical-align: middle;
+        transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+      }
+      .support a svg {
+        flex: 0 0 auto;
+        fill: none;
+      }
+      .support a:hover {
+        color: #fff;
+        border-color: #fb7185;
+        background: #fb7185;
+        box-shadow: 0 0 16px rgba(251, 113, 133, 0.7);
+        text-decoration: none;
+      }
+      .support a:hover svg {
+        fill: currentColor;
+      }
       .gh-link {
         display: flex;
         align-items: center;
         justify-content: center;
         flex-wrap: wrap;
         width: fit-content;
-        margin: 18px auto 0;
+        margin: 10px auto 0;
         font-size: 12px;
         line-height: 1.4;
         color: var(--text-faint);
@@ -357,6 +392,16 @@
         <span class="ico" aria-hidden="true">&#128161;</span>
         <div><b>Reload after every change.</b> Settings apply on page load, so reload the site whenever you change the popup config.</div>
       </div>
+
+      <p class="support">
+        If this was useful, you can
+        <a href="https://xviada.github.io/VCam-Bypass/donate/" target="_blank" rel="noopener">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+          </svg>
+          Support the project
+        </a>
+      </p>
 
       <p class="gh-link">
         <a href="https://github.com/xViada/VCam-Bypass" target="_blank" rel="noopener" title="Based on VCam Bypass by xViada — https://github.com/xViada/VCam-Bypass">
