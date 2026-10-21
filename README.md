@@ -128,11 +128,11 @@ npx serve .
 index.html                 landing page
 guide/index.html           usage guide
 donate/index.html          funding page
-es/index.html              Spanish landing page
-es/guide/index.html        Spanish usage guide
+es/, pt/                   Spanish and Brazilian Portuguese copies of the three pages
+                           (same layout; edit the English page, then mirror the text)
 assets/css/styles.css      styles, light/dark theme, responsive layout
 assets/css/guide.css       styles for the guide's animated walkthrough
-assets/js/config.js        funding data
+assets/js/config.js        funding data, plus FUNDING_I18N with its translations
 assets/js/app.js           donate cards, copy, and QR modal
 assets/js/theme.js         light/dark toggle, shared by every page
 assets/js/guide.js         timeline and playback of the guide's walkthrough

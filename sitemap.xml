@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://xviada.github.io/VCam-Bypass/</loc></url>
-  <url><loc>https://xviada.github.io/VCam-Bypass/es/</loc></url>
   <url><loc>https://xviada.github.io/VCam-Bypass/guide/</loc></url>
-  <url><loc>https://xviada.github.io/VCam-Bypass/es/guide/</loc></url>
   <url><loc>https://xviada.github.io/VCam-Bypass/donate/</loc></url>
+  <url><loc>https://xviada.github.io/VCam-Bypass/es/</loc></url>
+  <url><loc>https://xviada.github.io/VCam-Bypass/es/guide/</loc></url>
+  <url><loc>https://xviada.github.io/VCam-Bypass/es/donate/</loc></url>
+  <url><loc>https://xviada.github.io/VCam-Bypass/pt/</loc></url>
+  <url><loc>https://xviada.github.io/VCam-Bypass/pt/guide/</loc></url>
+  <url><loc>https://xviada.github.io/VCam-Bypass/pt/donate/</loc></url>
 </urlset>

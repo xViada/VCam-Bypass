@@ -16,6 +16,17 @@
   );
   var moon = icon('<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>');
 
+  var LABELS = {
+    en: ['Switch to light theme', 'Switch to dark theme'],
+    es: ['Cambiar al tema claro', 'Cambiar al tema oscuro'],
+    pt: ['Mudar para o tema claro', 'Mudar para o tema escuro']
+  };
+
+  function themeLabel(isDark) {
+    var lang = (document.documentElement.lang || 'en').slice(0, 2);
+    return (LABELS[lang] || LABELS.en)[isDark ? 0 : 1];
+  }
+
   function savedTheme() {
     try {
       var saved = localStorage.getItem(KEY);
@@ -43,12 +54,7 @@
     }
     var isDark = theme === 'dark';
     glyph.innerHTML = isDark ? sun : moon;
-    button.setAttribute(
-      'aria-label',
-      document.documentElement.lang === 'es'
-        ? (isDark ? 'Cambiar al tema claro' : 'Cambiar al tema oscuro')
-        : (isDark ? 'Switch to light theme' : 'Switch to dark theme')
-    );
+    button.setAttribute('aria-label', themeLabel(isDark));
   }
 
   applyTheme(savedTheme() || systemTheme(), !!savedTheme());
@@ -72,4 +78,21 @@
     if (mq.addEventListener) mq.addEventListener('change', onChange);
     else if (mq.addListener) mq.addListener(onChange);
   }
+
+  // Closes the language menu when the page is clicked elsewhere or Escape is
+  // pressed.
+  document.addEventListener('click', function (event) {
+    var menus = document.querySelectorAll('details.lang[open]');
+    for (var i = 0; i < menus.length; i++) {
+      if (!menus[i].contains(event.target)) menus[i].removeAttribute('open');
+    }
+  });
+  document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Escape') return;
+    var menu = document.querySelector('details.lang[open]');
+    if (menu) {
+      menu.removeAttribute('open');
+      menu.querySelector('summary').focus();
+    }
+  });
 })();

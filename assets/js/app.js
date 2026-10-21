@@ -6,6 +6,106 @@
 
   var config = window.FUNDING_CONFIG || {};
 
+  var LANG = (document.documentElement.lang || 'en').slice(0, 2);
+
+  // Texts the page adds itself. English is the default; the other languages
+  // mirror it key by key.
+  var STRINGS = {
+    en: {
+      accepted: 'Accepted: ',
+      copied: 'Copied',
+      addressCopied: function (name) { return name + ' address copied'; },
+      copyFailed: 'Could not copy. Select the address manually.',
+      copyAddress: 'Copy address',
+      openInWallet: 'Open in wallet',
+      downloadQr: 'Download QR',
+      notConfigured: 'Not configured yet',
+      notPublished: 'Address not published yet.',
+      copy: 'Copy',
+      viewQr: 'View QR',
+      copyLabel: function (name) { return 'Copy the ' + name + ' address'; },
+      qrLabel: function (name) { return 'View the ' + name + ' QR code'; },
+      qrFor: function (name) { return 'QR code for the ' + name + ' address'; },
+      qrFailed: 'Could not generate the QR code',
+      thisProject: 'this project',
+      support: function (name) { return 'Support ' + name; },
+      donate: 'Donate',
+      sourceOfPage: 'Source of this page',
+      footer: function (license) {
+        return license + ' licensed. No analytics or tracking. Donations are voluntary and do not unlock features.';
+      }
+    },
+    es: {
+      accepted: 'Aceptados: ',
+      copied: 'Copiado',
+      addressCopied: function (name) { return 'Dirección de ' + name + ' copiada'; },
+      copyFailed: 'No se pudo copiar. Selecciona la dirección manualmente.',
+      copyAddress: 'Copiar dirección',
+      openInWallet: 'Abrir en la cartera',
+      downloadQr: 'Descargar QR',
+      notConfigured: 'Aún sin configurar',
+      notPublished: 'Dirección aún sin publicar.',
+      copy: 'Copiar',
+      viewQr: 'Ver QR',
+      copyLabel: function (name) { return 'Copiar la dirección de ' + name; },
+      qrLabel: function (name) { return 'Ver el código QR de ' + name; },
+      qrFor: function (name) { return 'Código QR de la dirección de ' + name; },
+      qrFailed: 'No se pudo generar el código QR',
+      thisProject: 'este proyecto',
+      support: function (name) { return 'Apoya ' + name; },
+      donate: 'Donar',
+      sourceOfPage: 'Código de esta página',
+      footer: function (license) {
+        return 'Licenciado bajo ' + license + '. Sin analíticas ni rastreo. Las donaciones son voluntarias y no desbloquean funciones.';
+      }
+    },
+    pt: {
+      accepted: 'Aceitos: ',
+      copied: 'Copiado',
+      addressCopied: function (name) { return 'Endereço de ' + name + ' copiado'; },
+      copyFailed: 'Não foi possível copiar. Selecione o endereço manualmente.',
+      copyAddress: 'Copiar endereço',
+      openInWallet: 'Abrir na carteira',
+      downloadQr: 'Baixar QR',
+      notConfigured: 'Ainda não configurado',
+      notPublished: 'Endereço ainda não publicado.',
+      copy: 'Copiar',
+      viewQr: 'Ver QR',
+      copyLabel: function (name) { return 'Copiar o endereço de ' + name; },
+      qrLabel: function (name) { return 'Ver o código QR de ' + name; },
+      qrFor: function (name) { return 'Código QR do endereço de ' + name; },
+      qrFailed: 'Não foi possível gerar o código QR',
+      thisProject: 'este projeto',
+      support: function (name) { return 'Apoie o ' + name; },
+      donate: 'Doar',
+      sourceOfPage: 'Código desta página',
+      footer: function (license) {
+        return 'Licenciado sob a ' + license + '. Sem análises nem rastreamento. As doações são voluntárias e não liberam recursos.';
+      }
+    }
+  };
+  var T = STRINGS[LANG] || STRINGS.en;
+
+  // Translated copies of the texts that live in config.js. Only words are
+  // replaced: links, addresses and ids always come from the config itself.
+  (function localize() {
+    var table = (window.FUNDING_I18N || {})[LANG];
+    if (!table) return;
+    if (table.summary && config.project) config.project.summary = table.summary;
+    (config.platforms || []).forEach(function (platform) {
+      var tr = (table.platforms || {})[platform.id];
+      if (!tr) return;
+      if (tr.description) platform.description = tr.description;
+      if (tr.ctaLabel) platform.ctaLabel = tr.ctaLabel;
+    });
+    (config.wallets || []).forEach(function (wallet) {
+      var tr = (table.wallets || {})[wallet.id];
+      if (!tr) return;
+      if (tr.network) wallet.network = tr.network;
+      if (tr.note) wallet.note = tr.note;
+    });
+  })();
+
   function svg(viewBox, body, stroke) {
     return (
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' +
@@ -153,7 +253,8 @@
     });
     if (!marks.length) return '';
     return (
-      '<div class="pay-methods" role="img" aria-label="Accepted: ' +
+      '<div class="pay-methods" role="img" aria-label="' +
+      T.accepted +
       esc(labels.join(', ')) +
       '">' +
       marks.join('') +
@@ -265,7 +366,7 @@
     var original = button.innerHTML;
     button.dataset.flashing = '1';
     button.innerHTML =
-      '<span class="icon">' + ICONS.check + '</span><span>Copied</span>';
+      '<span class="icon">' + ICONS.check + '</span><span>' + T.copied + '</span>';
     setTimeout(function () {
       button.innerHTML = original;
       delete button.dataset.flashing;
@@ -276,10 +377,10 @@
     copyText(text).then(
       function () {
         flashCopied(button);
-        toast(label + ' address copied');
+        toast(T.addressCopied(label));
       },
       function () {
-        toast('Could not copy. Select the address manually.');
+        toast(T.copyFailed);
       }
     );
   }
@@ -374,13 +475,13 @@
       drawQr(canvas, uri);
       canvas.setAttribute(
         'aria-label',
-        'QR code for the ' + wallet.name + ' address'
+        T.qrFor(wallet.name)
       );
       $('#modal-download').hidden = false;
     } catch (e) {
-      canvas.setAttribute('aria-label', 'Could not generate the QR code');
+      canvas.setAttribute('aria-label', T.qrFailed);
       $('#modal-download').hidden = true;
-      toast('Could not generate the QR code');
+      toast(T.qrFailed);
     }
 
     var openLink = $('#modal-open');
@@ -415,13 +516,15 @@
     $('#modal-close-icon').innerHTML = ICONS.close;
 
     $('#modal-copy').innerHTML =
-      '<span class="icon">' + ICONS.copy + '</span><span>Copy address</span>';
+      '<span class="icon">' + ICONS.copy + '</span><span>' + T.copyAddress + '</span>';
     $('#modal-open').innerHTML =
       '<span class="icon">' +
       ICONS.external +
-      '</span><span>Open in wallet</span>';
+      '</span><span>' +
+      T.openInWallet +
+      '</span>';
     $('#modal-download').innerHTML =
-      '<span class="icon">' + ICONS.download + '</span><span>Download QR</span>';
+      '<span class="icon">' + ICONS.download + '</span><span>' + T.downloadQr + '</span>';
 
     Array.prototype.forEach.call(
       modal.root.querySelectorAll('[data-close-modal]'),
@@ -447,11 +550,11 @@
 
   function renderHero() {
     var project = config.project || {};
-    var name = isUnset(project.name) ? 'this project' : project.name;
+    var name = isUnset(project.name) ? T.thisProject : project.name;
 
-    $('#hero-title').textContent = 'Support ' + name;
+    $('#hero-title').textContent = T.support(name);
     $('#brand-text').textContent = name;
-    document.title = 'Support ' + name;
+    document.title = T.support(name);
 
     if (project.summary) {
       $('#hero-summary').textContent = project.summary;
@@ -491,7 +594,7 @@
 
       html += '<div class="card-body">';
       if (pending) {
-        html += '<span class="badge">Not configured yet</span>';
+        html += '<span class="badge">' + T.notConfigured + '</span>';
       } else {
         html +=
           '<a class="button button-brand" href="' +
@@ -500,7 +603,7 @@
           '<span class="icon">' +
           icon +
           '</span><span>' +
-          esc(platform.ctaLabel || 'Donate') +
+          esc(platform.ctaLabel || T.donate) +
           '</span></a>';
       }
       html += '</div>';
@@ -545,8 +648,8 @@
 
       if (pending) {
         html +=
-          '<span class="badge">Not configured yet</span>' +
-          '<p class="address address-placeholder">Address not published yet.</p>';
+          '<span class="badge">' + T.notConfigured + '</span>' +
+          '<p class="address address-placeholder">' + T.notPublished + '</p>';
       } else {
         html += '<p class="address">' + esc(wallet.address) + '</p>';
         if (wallet.note) {
@@ -563,12 +666,12 @@
           '<button type="button" class="button button-primary" data-action="copy">' +
           '<span class="icon">' +
           ICONS.copy +
-          '</span><span>Copy</span>' +
+          '</span><span>' + T.copy + '</span>' +
           '</button>' +
           '<button type="button" class="button button-ghost" data-action="qr">' +
           '<span class="icon">' +
           ICONS.qr +
-          '</span><span>View QR</span>' +
+          '</span><span>' + T.viewQr + '</span>' +
           '</button>' +
           '</div>' +
           '</div>';
@@ -580,7 +683,7 @@
       if (copyButton) {
         copyButton.setAttribute(
           'aria-label',
-          'Copy the ' + wallet.name + ' address'
+          T.copyLabel(wallet.name)
         );
         copyButton.addEventListener('click', function () {
           handleCopy(this, wallet.address, wallet.name);
@@ -591,7 +694,7 @@
       if (qrButton) {
         qrButton.setAttribute(
           'aria-label',
-          'View the ' + wallet.name + ' QR code'
+          T.qrLabel(wallet.name)
         );
         qrButton.addEventListener('click', function () {
           openModal(wallet);
@@ -634,14 +737,12 @@
     }
     if (!isUnset(config.pageRepo)) {
       chips.push(
-        chip(githubUrl(config.pageRepo), 'github', 'Source of this page')
+        chip(githubUrl(config.pageRepo), 'github', T.sourceOfPage)
       );
     }
     $('#footer-links').innerHTML = chips.join('');
     var license = project.license || 'GPL-3.0';
-    $('#footer-text').textContent =
-      license +
-      ' licensed. No analytics or tracking. Donations are voluntary and do not unlock features.';
+    $('#footer-text').textContent = T.footer(license);
   }
 
   setupModal();

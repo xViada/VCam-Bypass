@@ -342,6 +342,12 @@
     [29950, function () { clearHover(); }]
   ];
 
+  var PAUSE_LABELS = {
+    en: ['Pause animation', 'Play animation'],
+    es: ['Pausar animación', 'Reproducir animación'],
+    pt: ['Pausar animação', 'Reproduzir animação']
+  };
+
   // ---------- Playback ----------
 
   var time = 0;
@@ -420,9 +426,7 @@
   pauseButton.addEventListener('click', function () {
     paused = !paused;
     pauseButton.setAttribute('aria-pressed', String(paused));
-    pauseButton.setAttribute('aria-label', document.documentElement.lang === 'es'
-      ? (paused ? 'Reproducir animación' : 'Pausar animación')
-      : (paused ? 'Play animation' : 'Pause animation'));
+    pauseButton.setAttribute('aria-label', (PAUSE_LABELS[(document.documentElement.lang || '').slice(0, 2)] || PAUSE_LABELS.en)[paused ? 1 : 0]);
   });
 
   onVisible(root, function (isVisible) {

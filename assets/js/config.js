@@ -94,3 +94,68 @@ window.FUNDING_CONFIG = {
     }
   ]
 };
+
+// Translations of the texts above, keyed by language and by platform or wallet
+// id. Links, addresses and ids are never translated.
+window.FUNDING_I18N = {
+  es: {
+    summary:
+      'Las donaciones son voluntarias. Se destinan al tiempo que exige el proyecto: ' +
+      'nuevos métodos de enmascaramiento, perfiles de webcam y corrección de errores.',
+    platforms: {
+      sponsors: {
+        description:
+          'La opción más sencilla: pagos con tarjeta gestionados por GitHub, ' +
+          'únicos o mensuales, y cancelables en cualquier momento.',
+        ctaLabel: 'Patrocinar en GitHub'
+      },
+      kofi: {
+        description:
+          'Envía una propina puntual o hazte miembro mensual. ' +
+          'Ko-fi no se queda ninguna comisión de las donaciones.',
+        ctaLabel: 'Donar en Ko-fi'
+      }
+    },
+    wallets: {
+      btc: { network: 'Red Bitcoin (on-chain)', note: 'No envíes pagos Lightning a esta dirección.' },
+      eth: {
+        network: 'Red principal de Ethereum (ERC-20)',
+        note: 'Acepta ETH y tokens ERC-20 en la red principal de Ethereum.'
+      },
+      xmr: { network: 'Red Monero' },
+      sol: { network: 'Red Solana', note: 'Acepta SOL y tokens SPL en Solana.' },
+      ltc: { network: 'Red Litecoin' },
+      trx: { network: 'Red TRON (TRC-20)', note: 'Acepta TRX y tokens TRC-20 en TRON.' }
+    }
+  },
+  pt: {
+    summary:
+      'As doações são voluntárias. Elas vão para o tempo que o projeto exige: ' +
+      'novos métodos de mascaramento, perfis de webcam e correção de bugs.',
+    platforms: {
+      sponsors: {
+        description:
+          'A opção mais simples: pagamentos com cartão processados pelo GitHub, ' +
+          'únicos ou mensais, e canceláveis a qualquer momento.',
+        ctaLabel: 'Patrocinar no GitHub'
+      },
+      kofi: {
+        description:
+          'Envie uma gorjeta única ou torne-se membro mensal. ' +
+          'O Ko-fi não fica com nenhuma parte das doações.',
+        ctaLabel: 'Doar no Ko-fi'
+      }
+    },
+    wallets: {
+      btc: { network: 'Rede Bitcoin (on-chain)', note: 'Não envie pagamentos Lightning para este endereço.' },
+      eth: {
+        network: 'Rede principal do Ethereum (ERC-20)',
+        note: 'Aceita ETH e tokens ERC-20 na rede principal do Ethereum.'
+      },
+      xmr: { network: 'Rede Monero' },
+      sol: { network: 'Rede Solana', note: 'Aceita SOL e tokens SPL na Solana.' },
+      ltc: { network: 'Rede Litecoin' },
+      trx: { network: 'Rede TRON (TRC-20)', note: 'Aceita TRX e tokens TRC-20 na TRON.' }
+    }
+  }
+};

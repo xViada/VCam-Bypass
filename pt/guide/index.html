@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Como usar o VCam Bypass</title>
+  <meta name="description" content="Como fazer uma câmera virtual parecer uma webcam real com o VCam Bypass.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b0d10" media="(prefers-color-scheme: dark)">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:title" content="Como usar o VCam Bypass">
+  <meta property="og:description" content="Como fazer uma câmera virtual parecer uma webcam real com o VCam Bypass.">
+  <link rel="canonical" href="https://xviada.github.io/VCam-Bypass/pt/guide/">
+  <link rel="alternate" hreflang="en" href="https://xviada.github.io/VCam-Bypass/guide/">
+  <link rel="alternate" hreflang="es" href="https://xviada.github.io/VCam-Bypass/es/guide/">
+  <link rel="alternate" hreflang="pt-BR" href="https://xviada.github.io/VCam-Bypass/pt/guide/">
+  <link rel="alternate" hreflang="x-default" href="https://xviada.github.io/VCam-Bypass/guide/">
+  <meta property="og:url" content="https://xviada.github.io/VCam-Bypass/pt/guide/">
+  <meta property="og:image" content="https://xviada.github.io/VCam-Bypass/assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://xviada.github.io/VCam-Bypass/assets/og-image.png">
+
+  <link rel="icon" href="../../assets/favicon.png" type="image/png">
+  <link rel="stylesheet" href="../../assets/css/styles.css">
+  <link rel="stylesheet" href="../../assets/css/guide.css">
+
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('funding-theme');
+        if (saved === 'dark' || saved === 'light') {
+          document.documentElement.setAttribute('data-theme', saved);
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Pular para o conteúdo</a>
+
+  <div class="page">
+    <header class="topbar">
+      <a class="brand" href="../">
+        <img class="brand-mark" src="../../assets/favicon.png" alt="" width="26" height="26">
+        <span class="brand-text">VCam Bypass</span>
+      </a>
+      <div class="topbar-actions">
+        <nav class="nav" aria-label="Principal">
+          <a href="../">Início</a>
+          <a href="./" aria-current="page">Guia</a>
+          <a href="../donate/">Doar</a>
+        </nav>
+        <details class="lang"><summary aria-label="Idioma"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></summary><div class="lang-menu"><a href="../../guide/" hreflang="en" lang="en">English</a><a href="../../es/guide/" hreflang="es" lang="es">Español</a><a href="./" hreflang="pt-BR" lang="pt-BR" aria-current="true">Português</a></div></details>
+        <button type="button" class="icon-button" id="theme-toggle" aria-label="Alternar tema" hidden>
+          <span class="icon" id="theme-icon" aria-hidden="true"></span>
+        </button>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <p class="eyebrow">Guia</p>
+        <h1 class="hero-title">Como usar o VCam Bypass</h1>
+        <p class="hero-lede">
+          Configure a extensão em seis passos simples, de detectar suas câmeras a conferir o que o site vê. A interface da extensão está em inglês, por isso os nomes dos botões não são traduzidos.
+        </p>
+      </section>
+
+      <section class="section" aria-labelledby="guide-title">
+        <h2 class="section-title" id="guide-title">Passo a passo</h2>
+
+        <div class="gd" id="gd" data-scene="site" data-site="idle">
+          <div class="gd-main">
+          <div class="gd-viewport">
+            <div class="gd-stage" role="img" aria-label="Animação dos seis passos de configuração. No popup do VCam Bypass, o usuário clica em Detect devices e permite o acesso à câmera, escolhe a câmera virtual como webcam alvo, seleciona um modelo de webcam para emular, opcionalmente mascara um microfone, ativa a extensão, oculta os outros dispositivos e salva; depois abre a página de teste, que confirma que o site vê a webcam e o microfone emulados. De volta ao site, que havia bloqueado a câmera virtual, recarregar faz o aviso desaparecer.">
+              <div class="gd-bar">
+                <span class="gd-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="gd-reload" data-t="reload">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+                </span>
+                <span class="gd-address">
+                  <svg class="gd-address-lock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                  <svg class="gd-address-ext" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+                  <span class="gd-address-text">meet.example.com</span>
+                </span>
+                <span class="gd-ext" data-t="ext">
+                  <img src="../../assets/favicon.png" alt="" width="18" height="18">
+                </span>
+              </div>
+
+              <div class="gd-view">
+                <!-- Any site: shows what the page sees before and after the mask. -->
+                <div class="gd-layer gd-site">
+                  <div class="gd-call">
+                    <svg class="gd-person" viewBox="0 0 160 120" aria-hidden="true" focusable="false"><circle cx="80" cy="50" r="20"/><path d="M38 120c0-26 19-42 42-42s42 16 42 42z"/></svg>
+                    <span class="gd-live"><i></i>Live</span>
+                    <span class="gd-cam-chip">HD Pro Webcam C920</span>
+                  </div>
+                  <div class="gd-block">
+                    <div class="gd-block-card">
+                      <span class="gd-block-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M16 16v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L22 8v8"/><path d="m2 2 20 20"/></svg>
+                      </span>
+                      <h4 class="gd-block-title">Can’t use this service</h4>
+                      <p>A virtual camera was detected (<strong>OBS Virtual Camera</strong>). Please connect a physical webcam to join this call.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- request.html -->
+                <div class="gd-layer gd-ext-page xr">
+                  <div class="xr-card">
+                    <h4 class="xr-title">Detect devices</h4>
+                    <p>When Chrome asks, click <strong>Allow</strong> to grant camera and microphone access. This is only used to read the names of your devices so you can choose which ones to mask. Nothing is recorded or sent anywhere.</p>
+                    <div class="xr-status">
+                      <span class="xr-wait">Requesting permission...</span>
+                      <span class="xr-done">Permission granted. Detected devices:</span>
+                    </div>
+                    <div class="xr-list">
+                      <p>Cameras:</p>
+                      <ul><li>Integrated Camera</li><li>OBS Virtual Camera</li></ul>
+                      <p>Microphones:</p>
+                      <ul><li>Microphone (Realtek Audio)</li><li>CABLE Output (VB-Audio Virtual Cable)</li></ul>
+                      <p>You can now close this tab and pick devices in the popup.</p>
+                    </div>
+                    <span class="xr-retry">Retry</span>
+                  </div>
+                </div>
+
+                <!-- test.html -->
+                <div class="gd-layer gd-ext-page xt">
+                  <div class="xt-scroll">
+                    <div class="xt-hero">
+                      <img src="../../assets/favicon.png" alt="" width="44" height="44">
+                      <div>
+                        <h4 class="xt-h1">Test the mask</h4>
+                        <p>This page shows exactly what a website sees when it opens your camera and microphone.</p>
+                      </div>
+                    </div>
+
+                    <div class="xt-label" data-t="cam">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>
+                      Camera
+                    </div>
+                    <div class="xt-card">
+                      <div class="xt-verdict pending" data-v="cam">
+                        <span class="xt-dot"></span>
+                        <span class="xt-vbody"><span class="xt-vtitle"></span><span class="xt-vtext"></span></span>
+                      </div>
+                      <div class="xt-controls">
+                        <span class="xt-clabel">Camera</span>
+                        <span class="xt-select">HD Pro Webcam C920 (046d:082d)</span>
+                        <span class="xt-btn">Refresh devices</span>
+                      </div>
+                      <p class="xt-hint">Pick the camera you masked (it appears with the fake name) and the values below update on the spot.</p>
+                    </div>
+                    <div class="xt-grid" data-t="camreport">
+                      <div class="xt-card">
+                        <p class="xt-ctitle">Live preview</p>
+                        <div class="xt-video">
+                          <svg viewBox="0 0 160 120" aria-hidden="true" focusable="false"><circle cx="80" cy="50" r="20"/><path d="M38 120c0-26 19-42 42-42s42 16 42 42z"/></svg>
+                        </div>
+                      </div>
+                      <div class="xt-card">
+                        <p class="xt-ctitle">What the site sees (camera)</p>
+                        <p class="xt-empty">Run the test to see the reported identity, settings and capabilities.</p>
+                        <div class="xt-rows">
+                          <div class="xt-kv"><span class="k">label</span><span class="v">HD Pro Webcam C920 (046d:082d)</span></div>
+                          <div class="xt-kv"><span class="k">deviceId</span><span class="v">e41b7c09…5d2a8f</span></div>
+                          <div class="xt-kv"><span class="k">groupId</span><span class="v">a27f03d1…c96e14</span></div>
+                          <div class="xt-kv"><span class="k">resolution</span><span class="v">1920 × 1080 @ 30 fps</span></div>
+                          <div class="xt-kv"><span class="k">facingMode</span><span class="v">(none)</span></div>
+                          <div class="xt-kv"><span class="k">image controls</span><span class="v good">10 exposed</span></div>
+                          <div class="xt-kv"><span class="k">⤷ which</span><span class="v muted">brightness, contrast, saturation, sharpness, colorTemperature, exposureTime, exposureMode, whiteBalanceMode, focusMode, focusDistance</span></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="xt-label" data-t="mic">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                      Microphone
+                    </div>
+                    <div class="xt-card">
+                      <div class="xt-verdict pending" data-v="mic">
+                        <span class="xt-dot"></span>
+                        <span class="xt-vbody"><span class="xt-vtitle"></span><span class="xt-vtext"></span></span>
+                      </div>
+                      <div class="xt-controls">
+                        <span class="xt-clabel">Microphone</span>
+                        <span class="xt-select">Microphone (HD Pro Webcam C920) (046d:082d)</span>
+                      </div>
+                      <p class="xt-hint">Pick the microphone you masked (it appears with the fake name). If mic mask is off, this shows your real mic identity.</p>
+                    </div>
+                    <div class="xt-grid">
+                      <div class="xt-card">
+                        <p class="xt-ctitle">Audio input</p>
+                        <div class="xt-meter">
+                          <svg viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                            <defs>
+                              <linearGradient id="gd-wave-grad" x1="0" x2="1" y1="0" y2="0">
+                                <stop offset="0" stop-color="rgba(91,140,255,0.6)"/>
+                                <stop offset="0.5" stop-color="rgba(138,108,255,0.8)"/>
+                                <stop offset="1" stop-color="rgba(74,222,128,0.6)"/>
+                              </linearGradient>
+                            </defs>
+                            <g class="xt-wave"><path class="xt-wave-path" fill="none" stroke="url(#gd-wave-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></g>
+                          </svg>
+                          <div class="xt-meter-over"><span class="xt-meter-hint">Speak or make a sound</span><span class="xt-meter-level">—</span></div>
+                        </div>
+                      </div>
+                      <div class="xt-card">
+                        <p class="xt-ctitle">What the site sees (microphone)</p>
+                        <p class="xt-empty">Run the test to see the reported identity and settings.</p>
+                        <div class="xt-rows">
+                          <div class="xt-kv"><span class="k">label</span><span class="v">Microphone (HD Pro Webcam C920) (046d:082d)</span></div>
+                          <div class="xt-kv"><span class="k">deviceId</span><span class="v">7c20e5b8…19f3a0</span></div>
+                          <div class="xt-kv"><span class="k">groupId</span><span class="v">a27f03d1…c96e14</span></div>
+                          <div class="xt-kv"><span class="k">sampleRate</span><span class="v">48000 Hz</span></div>
+                          <div class="xt-kv"><span class="k">channels</span><span class="v">1</span></div>
+                          <div class="xt-kv"><span class="k">processing</span><span class="v muted">echo cancel, noise suppress, auto gain</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Chrome's permission prompt -->
+                <div class="gd-perm">
+                  <p class="gd-perm-title">This extension wants to</p>
+                  <ul>
+                    <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>Use your cameras</li>
+                    <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>Use your microphones</li>
+                  </ul>
+                  <div class="gd-perm-actions">
+                    <span class="gd-perm-allow" data-t="allow">Allow</span>
+                    <span class="gd-perm-deny">Don’t allow</span>
+                  </div>
+                </div>
+
+                <!-- popup.html -->
+                <div class="gd-popup gp">
+                  <div class="gp-header">
+                    <img src="../../assets/favicon.png" alt="" width="30" height="30">
+                    <div class="gp-header-text">
+                      <div class="gp-h1">VCam Bypass</div>
+                      <p>Rewrites the device info exposed</p>
+                    </div>
+                    <div class="gp-header-actions">
+                      <span class="gp-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                      </span>
+                      <span class="gp-icon" data-t="eye">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                      </span>
+                      <span class="gp-switch" data-t="switch"><span class="gp-slider"></span></span>
+                    </div>
+                  </div>
+
+                  <div class="gp-card">
+                    <div class="gp-card-title">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>
+                      Camera
+                    </div>
+                    <div class="gp-row">
+                      <div class="gp-label">Target webcam</div>
+                      <div class="gp-select" data-t="target"><span class="gp-value"></span></div>
+                      <ul class="gp-menu" data-menu="target">
+                        <li>Select a webcam</li>
+                        <li>Integrated Camera</li>
+                        <li data-t="target-pick">OBS Virtual Camera</li>
+                      </ul>
+                      <span class="gp-detect" data-t="detect">Detect devices (grant permission)</span>
+                    </div>
+                    <div class="gp-row">
+                      <div class="gp-row-head">
+                        <div class="gp-label">Emulated model (capabilities)</div>
+                        <span class="gp-id-btn" data-t="newid"><span class="gp-dice">&#127922;</span><span>New identity</span></span>
+                      </div>
+                      <div class="gp-select" data-t="model"><span class="gp-value"></span></div>
+                      <ul class="gp-menu" data-menu="model">
+                        <li>Generic webcam</li>
+                        <li data-t="model-pick">Logitech C920 (1080p)</li>
+                        <li>Logitech C922 Pro (1080p/720p60)</li>
+                        <li>Logitech BRIO (4K)</li>
+                        <li>Microsoft LifeCam HD-3000 (720p)</li>
+                        <li>Integrated laptop webcam (720p)</li>
+                      </ul>
+                      <span class="gp-advanced"><span>&#9656;</span> Advanced capabilities</span>
+                    </div>
+                  </div>
+
+                  <div class="gp-card">
+                    <div class="gp-card-title">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                      Microphone
+                    </div>
+                    <div class="gp-row">
+                      <div class="gp-mic-grid">
+                        <div class="gp-mic-mode">
+                          <div class="gp-label">Mic mask</div>
+                          <div class="gp-select" data-t="micmode"><span class="gp-value"></span></div>
+                          <ul class="gp-menu" data-menu="micmode">
+                            <li>Off</li>
+                            <li data-t="micmode-pick">Auto</li>
+                            <li>Custom</li>
+                          </ul>
+                        </div>
+                        <div class="gp-mic-target">
+                          <div class="gp-label">Target microphone</div>
+                          <div class="gp-select" data-t="micsel"><span class="gp-value"></span></div>
+                          <ul class="gp-menu gp-menu-wide" data-menu="micsel">
+                            <li>Select a microphone</li>
+                            <li data-t="micsel-pick">Microphone (Realtek Audio)</li>
+                            <li>CABLE Output (VB-Audio Virtual Cable)</li>
+                          </ul>
+                        </div>
+                      </div>
+                      <p class="gp-hint"></p>
+                    </div>
+                  </div>
+
+                  <div class="gp-tools">
+                    <span class="gp-tool" data-t="test">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 3a9 9 0 1 0 9 9"/><path d="M21 3v6h-6"/></svg>
+                      Test it
+                    </span>
+                    <span class="gp-tool">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                      How to use
+                    </span>
+                  </div>
+
+                  <div class="gp-actions"><span class="gp-save" data-t="save">Save changes</span></div>
+                  <div class="gp-status">Saved. Reload the page to apply.</div>
+
+                  <p class="gp-gh">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                    VCam Bypass by xViada · © 2026 · GPL-3.0
+                  </p>
+                </div>
+              </div>
+
+              <span class="gd-cursor" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 3l14 8-6.2 1.6L9.6 19z"/></svg></span>
+            </div>
+            <button type="button" class="icon-button gd-pause" id="gd-pause" aria-label="Pausar animação" aria-pressed="false" hidden>
+              <svg class="icon-pause" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+              <svg class="icon-play" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+            </button>
+          </div>
+          </div>
+
+          <div class="gd-controls">
+            <div class="gd-caption" aria-live="polite">
+              <span class="gd-step-num gd-caption-num">1</span>
+              <div class="gd-step-body">
+                <span class="gd-step-title gd-caption-title"></span>
+                <span class="gd-step-text gd-caption-text"></span>
+              </div>
+            </div>
+            <ol class="gd-steps">
+              <li>
+                <button type="button" class="gd-step" data-step="1">
+                  <span class="gd-step-num">1</span>
+                  <span class="gd-step-body">
+                    <span class="gd-step-title">Detecte suas câmeras</span>
+                    <span class="gd-step-text">Clique em <span class="pill">Detect devices</span> e em <span class="pill">Allow</span>. Isso só lê os nomes dos dispositivos.</span>
+                  </span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="gd-step" data-step="2">
+                  <span class="gd-step-num">2</span>
+                  <span class="gd-step-body">
+                    <span class="gd-step-title">Escolha a webcam alvo</span>
+                    <span class="gd-step-text">Abra <span class="pill">Target webcam</span> e escolha sua câmera virtual. É obrigatório escolher um alvo.</span>
+                  </span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="gd-step" data-step="3">
+                  <span class="gd-step-num">3</span>
+                  <span class="gd-step-body">
+                    <span class="gd-step-title">Escolha qual câmera emular</span>
+                    <span class="gd-step-text">Escolha um modelo real em <span class="pill">Emulated model</span> ou clique em <span class="pill">New identity</span>.</span>
+                  </span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="gd-step" data-step="4">
+                  <span class="gd-step-num">4</span>
+                  <span class="gd-step-body">
+                    <span class="gd-step-title">Microfone <span class="guide-optional">opcional</span></span>
+                    <span class="gd-step-text">Escolha o microfone a mascarar. <span class="pill">Auto</span> o faz passar pelo microfone embutido da câmera emulada, <span class="pill">Custom</span> dá a ele um nome e IDs próprios e <span class="pill">Off</span> deixa os microfones como estão.</span>
+                  </span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="gd-step" data-step="5">
+                  <span class="gd-step-num">5</span>
+                  <span class="gd-step-body">
+                    <span class="gd-step-title">Ative e salve</span>
+                    <span class="gd-step-text">Ligue o interruptor <span class="pill">on</span> e clique em <span class="pill">Save changes</span>. O botão de olho oculta suas outras câmeras e microfones dos sites, que só verão os emulados.</span>
+                  </span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="gd-step" data-step="6">
+                  <span class="gd-step-num">6</span>
+                  <span class="gd-step-body">
+                    <span class="gd-step-title">Confira se funciona</span>
+                    <span class="gd-step-text">Abra <span class="pill">Test it</span> pelo popup para confirmar que o site vê a webcam emulada. Recarregue a página para aplicar as mudanças.</span>
+                  </span>
+                </button>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="chip-row" id="footer-links"><a class="chip chip-github" href="https://github.com/xViada/VCam-Bypass" target="_blank" rel="noopener noreferrer"><span class="icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg></span><span>VCam Bypass</span></a><a class="chip chip-github" href="https://github.com/xViada" target="_blank" rel="noopener noreferrer"><span class="icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg></span><span>@xViada</span></a><a class="chip chip-discord" href="https://discordapp.com/users/675421408612057089" target="_blank" rel="noopener noreferrer"><span class="icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M20.317 4.3698a19.7913 19.7913 0 0 0-4.8851-1.5152.0741.0741 0 0 0-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 0 0-.0785-.037 19.7363 19.7363 0 0 0-4.8852 1.515.0699.0699 0 0 0-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 0 0 .0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 0 0 .0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 0 0-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 0 1-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 0 1 .0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 0 1 .0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 0 1-.0066.1276 12.2986 12.2986 0 0 1-1.873.8914.0766.0766 0 0 0-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 0 0 .0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 0 0 .0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 0 0-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"></path></svg></span><span>_Viada</span></a><a class="chip chip-github" href="https://github.com/xViada/VCam-Bypass/tree/gh-pages" target="_blank" rel="noopener noreferrer"><span class="icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg></span><span>Código desta página</span></a></div>
+      <p id="footer-text">Licenciado sob a GPL-3.0. Sem análises nem rastreamento. As doações são voluntárias e não liberam recursos.</p>
+    
+    </footer>
+  </div>
+
+  <script src="../../assets/js/theme.js"></script>
+  <script src="../../assets/js/guide.js"></script>
+</body>
+</html>

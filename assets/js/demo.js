@@ -33,20 +33,38 @@
     var pauseButton = document.getElementById('demo-pause');
     var stepButtons = root.querySelectorAll('.demo-step');
 
-    var isEs = document.documentElement.lang === 'es';
-    var CAPTIONS = isEs ? {
-      before: 'Las webs pueden saber que tu cámara es virtual.',
-      1: 'Abre VCam Bypass y elige la cámara virtual que usas.',
-      2: 'Elige la webcam real a la que debe parecerse.',
-      3: 'Actívala y guarda, luego recarga la página.',
-      after: 'Mismo vídeo, nueva identidad: ahora la web ve una webcam real.'
-    } : {
-      before: 'Websites can tell your camera is virtual.',
-      1: 'Open VCam Bypass and pick the virtual camera you use.',
-      2: 'Choose the real webcam it should look like.',
-      3: 'Turn it on and save, then reload the page.',
-      after: 'Same video, new identity: the site now sees a real webcam.'
+    var lang = (document.documentElement.lang || 'en').slice(0, 2);
+    var TEXTS = {
+      en: {
+        before: 'Websites can tell your camera is virtual.',
+        1: 'Open VCam Bypass and pick the virtual camera you use.',
+        2: 'Choose the real webcam it should look like.',
+        3: 'Turn it on and save, then reload the page.',
+        after: 'Same video, new identity: the site now sees a real webcam.',
+        play: 'Play animation',
+        pause: 'Pause animation'
+      },
+      es: {
+        before: 'Las webs pueden saber que tu cámara es virtual.',
+        1: 'Abre VCam Bypass y elige la cámara virtual que usas.',
+        2: 'Elige la webcam real a la que debe parecerse.',
+        3: 'Actívala y guarda, luego recarga la página.',
+        after: 'Mismo vídeo, nueva identidad: ahora la web ve una webcam real.',
+        play: 'Reproducir animación',
+        pause: 'Pausar animación'
+      },
+      pt: {
+        before: 'Os sites conseguem saber que sua câmera é virtual.',
+        1: 'Abra o VCam Bypass e escolha a câmera virtual que você usa.',
+        2: 'Escolha a webcam real com que ela deve se parecer.',
+        3: 'Ative e salve, depois recarregue a página.',
+        after: 'Mesmo vídeo, nova identidade: agora o site vê uma webcam real.',
+        play: 'Reproduzir animação',
+        pause: 'Pausar animação'
+      }
     };
+    var TEXT = TEXTS[lang] || TEXTS.en;
+    var CAPTIONS = TEXT;
 
     // Where each step starts, used when a step button is clicked.
     var STEP_AT = { 1: 1800, 2: 5700, 3: 8100 };
@@ -263,9 +281,7 @@
     pauseButton.addEventListener('click', function () {
       paused = !paused;
       pauseButton.setAttribute('aria-pressed', String(paused));
-      pauseButton.setAttribute('aria-label', isEs
-        ? (paused ? 'Reproducir animación' : 'Pausar animación')
-        : (paused ? 'Play animation' : 'Pause animation'));
+      pauseButton.setAttribute('aria-label', paused ? TEXT.play : TEXT.pause);
     });
 
     onVisible(root, function (isVisible) {
@@ -563,7 +579,7 @@
 
     function apply(release) {
       if (!release || !release.tag) return;
-      document.getElementById('download-label').textContent = (document.documentElement.lang === 'es' ? 'Descargar ' : 'Download ') + release.tag;
+      document.getElementById('download-label').textContent = ({ es: 'Descargar ', pt: 'Baixar ' }[(document.documentElement.lang || '').slice(0, 2)] || 'Download ') + release.tag;
       var heroVersion = document.getElementById('hero-version');
       if (heroVersion) heroVersion.hidden = false;
       if (release.url) link.href = release.url;
