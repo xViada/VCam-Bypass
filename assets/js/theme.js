@@ -45,7 +45,9 @@
     glyph.innerHTML = isDark ? sun : moon;
     button.setAttribute(
       'aria-label',
-      isDark ? 'Switch to light theme' : 'Switch to dark theme'
+      document.documentElement.lang === 'es'
+        ? (isDark ? 'Cambiar al tema claro' : 'Cambiar al tema oscuro')
+        : (isDark ? 'Switch to light theme' : 'Switch to dark theme')
     );
   }
 

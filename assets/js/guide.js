@@ -420,7 +420,9 @@
   pauseButton.addEventListener('click', function () {
     paused = !paused;
     pauseButton.setAttribute('aria-pressed', String(paused));
-    pauseButton.setAttribute('aria-label', paused ? 'Play animation' : 'Pause animation');
+    pauseButton.setAttribute('aria-label', document.documentElement.lang === 'es'
+      ? (paused ? 'Reproducir animación' : 'Pausar animación')
+      : (paused ? 'Play animation' : 'Pause animation'));
   });
 
   onVisible(root, function (isVisible) {

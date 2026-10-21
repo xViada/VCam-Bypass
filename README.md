@@ -128,6 +128,8 @@ npx serve .
 index.html                 landing page
 guide/index.html           usage guide
 donate/index.html          funding page
+es/index.html              Spanish landing page
+es/guide/index.html        Spanish usage guide
 assets/css/styles.css      styles, light/dark theme, responsive layout
 assets/css/guide.css       styles for the guide's animated walkthrough
 assets/js/config.js        funding data

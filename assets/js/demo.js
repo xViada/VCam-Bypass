@@ -33,7 +33,14 @@
     var pauseButton = document.getElementById('demo-pause');
     var stepButtons = root.querySelectorAll('.demo-step');
 
-    var CAPTIONS = {
+    var isEs = document.documentElement.lang === 'es';
+    var CAPTIONS = isEs ? {
+      before: 'Las webs pueden saber que tu cámara es virtual.',
+      1: 'Abre VCam Bypass y elige la cámara virtual que usas.',
+      2: 'Elige la webcam real a la que debe parecerse.',
+      3: 'Actívala y guarda, luego recarga la página.',
+      after: 'Mismo vídeo, nueva identidad: ahora la web ve una webcam real.'
+    } : {
       before: 'Websites can tell your camera is virtual.',
       1: 'Open VCam Bypass and pick the virtual camera you use.',
       2: 'Choose the real webcam it should look like.',
@@ -256,7 +263,9 @@
     pauseButton.addEventListener('click', function () {
       paused = !paused;
       pauseButton.setAttribute('aria-pressed', String(paused));
-      pauseButton.setAttribute('aria-label', paused ? 'Play animation' : 'Pause animation');
+      pauseButton.setAttribute('aria-label', isEs
+        ? (paused ? 'Reproducir animación' : 'Pausar animación')
+        : (paused ? 'Play animation' : 'Pause animation'));
     });
 
     onVisible(root, function (isVisible) {
@@ -554,7 +563,7 @@
 
     function apply(release) {
       if (!release || !release.tag) return;
-      document.getElementById('download-label').textContent = 'Download ' + release.tag;
+      document.getElementById('download-label').textContent = (document.documentElement.lang === 'es' ? 'Descargar ' : 'Download ') + release.tag;
       var heroVersion = document.getElementById('hero-version');
       if (heroVersion) heroVersion.hidden = false;
       if (release.url) link.href = release.url;
