@@ -555,6 +555,8 @@
     function apply(release) {
       if (!release || !release.tag) return;
       document.getElementById('download-label').textContent = 'Download ' + release.tag;
+      var heroVersion = document.getElementById('hero-version');
+      if (heroVersion) heroVersion.hidden = false;
       if (release.url) link.href = release.url;
       document.querySelectorAll('[data-release-version]').forEach(function (el) {
         el.textContent = release.tag.replace(/^v/, '');
@@ -601,8 +603,52 @@
       .catch(function () {});
   }
 
+  // Shows the star count and the current version in the hero. Both stay hidden
+  // if GitHub can't be reached.
+  function heroStats() {
+    var stars = document.getElementById('hero-stars');
+    if (!stars || !window.fetch) return;
+
+    var KEY = 'vcam-repo-stats';
+
+    function apply(stats) {
+      if (!stats) return;
+      if (stats.stars > 0) {
+        stars.textContent = stats.stars >= 1000
+          ? (stats.stars / 1000).toFixed(1).replace(/\.0$/, '') + 'k'
+          : String(stats.stars);
+        stars.hidden = false;
+      }
+    }
+
+    try {
+      var cached = JSON.parse(sessionStorage.getItem(KEY));
+      if (cached) {
+        apply(cached);
+        return;
+      }
+    } catch (e) {}
+
+    fetch('https://api.github.com/repos/xViada/VCam-Bypass', {
+      headers: { Accept: 'application/vnd.github+json' }
+    })
+      .then(function (response) {
+        if (!response.ok) throw new Error(response.status);
+        return response.json();
+      })
+      .then(function (data) {
+        var stats = { stars: Number(data.stargazers_count) || 0 };
+        apply(stats);
+        try {
+          sessionStorage.setItem(KEY, JSON.stringify(stats));
+        } catch (e) {}
+      })
+      .catch(function () {});
+  }
+
   howItWorks();
   features();
   installation();
   latestRelease();
+  heroStats();
 })();

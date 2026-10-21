@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://xviada.github.io/VCam-Bypass/sitemap.xml

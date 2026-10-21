@@ -9,10 +9,34 @@
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0b0d10" media="(prefers-color-scheme: dark)">
 
+  <link rel="canonical" href="https://xviada.github.io/VCam-Bypass/">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="VCam Bypass">
+  <meta property="og:url" content="https://xviada.github.io/VCam-Bypass/">
   <meta property="og:title" content="VCam Bypass">
   <meta property="og:description" content="A Chrome extension that makes any virtual camera appear to a website as a normal physical webcam.">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="https://xviada.github.io/VCam-Bypass/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="VCam Bypass: virtual camera in, physical webcam out.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://xviada.github.io/VCam-Bypass/assets/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "VCam Bypass",
+    "description": "A Chrome extension that makes any virtual camera appear to a website as a normal physical webcam.",
+    "applicationCategory": "BrowserApplication",
+    "operatingSystem": "Chrome, Edge, Brave",
+    "url": "https://xviada.github.io/VCam-Bypass/",
+    "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+    "codeRepository": "https://github.com/xViada/VCam-Bypass",
+    "author": { "@type": "Person", "name": "xViada", "url": "https://github.com/xViada" },
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
 
   <link rel="icon" href="assets/favicon.png" type="image/png">
   <link rel="stylesheet" href="assets/css/styles.css">
@@ -57,15 +81,19 @@
           A Chrome extension that makes a virtual camera, such as OBS Virtual Camera, look like a normal physical webcam to any website.
         </p>
         <div class="hero-actions">
-          <a class="button button-primary" href="https://github.com/xViada/VCam-Bypass" target="_blank" rel="noopener noreferrer">
+          <a class="button button-primary" href="#install">
+            <span class="icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg></span>
+            Install
+          </a>
+          <a class="button button-ghost" href="https://github.com/xViada/VCam-Bypass" target="_blank" rel="noopener noreferrer">
             <span class="icon" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
             </span>
-            View on GitHub
+            View on GitHub<span class="hero-stars" id="hero-stars" hidden></span>
           </a>
-          <a class="button button-ghost" href="donate/">Support the project</a>
+          <a class="button button-ghost" href="donate/">Donate</a>
         </div>
-        <p class="hero-meta">GPL-3.0 licensed · maintained by <a href="https://github.com/xViada" target="_blank" rel="noopener noreferrer">@xViada</a></p>
+        <p class="hero-meta">Free and open source (GPL-3.0) · <span id="hero-version" hidden>version <span data-release-version></span> · </span>maintained by <a href="https://github.com/xViada" target="_blank" rel="noopener noreferrer">@xViada</a></p>
       </section>
 
       <section class="section" id="how-it-works" aria-labelledby="how-it-works-title">
@@ -362,6 +390,63 @@
           </ol>
         </div>
         <p class="inst-note">Works in Chrome, Edge and Brave. To update, replace the folder's files with the new version and click <span aria-hidden="true">↻</span><span class="visually-hidden">reload</span> on the extension card.</p>
+      </section>
+      <section class="section" id="privacy" aria-labelledby="privacy-title">
+        <h2 class="section-title" id="privacy-title">Privacy and permissions</h2>
+        <p class="section-lede">An extension that edits what websites see should be easy to audit. This is everything VCam Bypass asks for and why. The code is short, public and licensed under the GPL.</p>
+        <ul class="facts">
+          <li class="fact">
+            <h3>Runs on every site</h3>
+            <p>It must patch the camera APIs before a page's own scripts run, so it is injected on all pages. It only rewrites device info and never reads page content.</p>
+          </li>
+          <li class="fact">
+            <h3>Settings stay on your device</h3>
+            <p>The <code>storage</code> permission keeps your choices in the browser. Nothing is uploaded and there is no account.</p>
+          </li>
+          <li class="fact">
+            <h3>One request to GitHub</h3>
+            <p>When the browser starts, it asks the GitHub API for the latest release number so the popup can show an update badge. It sends no cookies and no identifiers.</p>
+          </li>
+          <li class="fact">
+            <h3>No tracking, no remote code</h3>
+            <p>No analytics, no ads and no servers of its own. This site does not track you either.</p>
+          </li>
+        </ul>
+        <p class="inst-note">The only official source is the <a href="https://github.com/xViada/VCam-Bypass" target="_blank" rel="noopener noreferrer">GitHub repository</a>. Copies in extension stores are not made or endorsed by the author. You are responsible for following the laws and terms of service that apply where you use it.</p>
+      </section>
+
+      <section class="section" id="faq" aria-labelledby="faq-title">
+        <h2 class="section-title" id="faq-title">Questions</h2>
+        <div class="faq">
+          <details>
+            <summary>Does it change my video?</summary>
+            <p>No. It only rewrites the device information the browser reports: name, IDs and capabilities. The stream keeps its real resolution and frame rate, so the video looks exactly as it does without the extension.</p>
+          </details>
+          <details>
+            <summary>Which virtual cameras work?</summary>
+            <p>Any virtual camera that shows up as a webcam in Chrome, such as OBS Virtual Camera, ManyCam, DroidCam, iVCam or Snap Camera. It must be installed and running before you pick it.</p>
+          </details>
+          <details>
+            <summary>Why do I have to reload the page?</summary>
+            <p>The mask is applied when a page starts loading. After installing the extension or changing a setting, reload the tab where you use the camera.</p>
+          </details>
+          <details>
+            <summary>Which browsers are supported?</summary>
+            <p>Chrome, Edge and Brave, or any Chromium browser that supports Manifest V3 extensions.</p>
+          </details>
+          <details>
+            <summary>Will it work on every website?</summary>
+            <p>It changes what the browser's camera APIs report to the page. A service that identifies virtual cameras in some other way, for example on its own servers or outside the browser, is out of its reach. Use the Test it button to check what a site sees.</p>
+          </details>
+          <details>
+            <summary>How do I update it?</summary>
+            <p>When a new release is out, the popup shows a badge. Replace the folder's files with the new version and click reload on the extension card.</p>
+          </details>
+          <details>
+            <summary>Something is not working. Where do I report it?</summary>
+            <p>Open an issue on <a href="https://github.com/xViada/VCam-Bypass/issues" target="_blank" rel="noopener noreferrer">GitHub</a> with your browser version, the virtual camera you use and what the Test it page shows.</p>
+          </details>
+        </div>
       </section>
     </main>
 

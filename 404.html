@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page not found - VCam Bypass</title>
+  <meta name="robots" content="noindex">
+  <meta name="color-scheme" content="light dark">
+  <base href="/VCam-Bypass/">
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('funding-theme');
+        if (saved === 'dark' || saved === 'light') {
+          document.documentElement.setAttribute('data-theme', saved);
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <a class="brand" href="./">
+        <img class="brand-mark" src="assets/favicon.png" alt="" width="26" height="26">
+        <span class="brand-text">VCam Bypass</span>
+      </a>
+    </header>
+    <main id="main">
+      <section class="hero">
+        <p class="eyebrow">404</p>
+        <h1 class="hero-title">Page not found</h1>
+        <p class="hero-lede">That address does not exist. Try one of these instead.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="./">Home</a>
+          <a class="button button-ghost" href="guide/">Guide</a>
+          <a class="button button-ghost" href="donate/">Donate</a>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

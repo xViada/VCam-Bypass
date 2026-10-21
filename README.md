@@ -136,6 +136,9 @@ assets/js/theme.js         light/dark toggle, shared by every page
 assets/js/guide.js         timeline and playback of the guide's walkthrough
 assets/vendor/qrcode.js    QR generator by Kazuhiko Arase (MIT)
 assets/favicon.png         tab icon
+assets/og-image.png        preview image for link sharing (1200x630)
+404.html                   page shown for unknown addresses
+sitemap.xml, robots.txt    search engine files; update the URLs if the site moves
 .nojekyll                  stops Pages from processing the site with Jekyll
 ```
 
