@@ -129,9 +129,11 @@ index.html                 landing page
 guide/index.html           usage guide
 donate/index.html          funding page
 assets/css/styles.css      styles, light/dark theme, responsive layout
+assets/css/guide.css       styles for the guide's animated walkthrough
 assets/js/config.js        funding data
 assets/js/app.js           donate cards, copy, and QR modal
 assets/js/theme.js         light/dark toggle, shared by every page
+assets/js/guide.js         timeline and playback of the guide's walkthrough
 assets/vendor/qrcode.js    QR generator by Kazuhiko Arase (MIT)
 assets/favicon.png         tab icon
 .nojekyll                  stops Pages from processing the site with Jekyll

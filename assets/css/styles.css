@@ -561,15 +561,6 @@ code {
   flex: 1 1 auto;
 }
 
-.callout {
-  margin-top: 28px;
-  padding: 14px 16px;
-  font-size: 0.9375rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-}
-
 .card-note {
   display: flex;
   gap: 8px;
@@ -656,83 +647,6 @@ code {
   background: none;
 }
 
-.guide-steps {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-  margin: 22px 0 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: guide;
-}
-
-.guide-step {
-  min-width: 0;
-  gap: 0;
-  padding: 0;
-  counter-increment: guide;
-}
-
-.guide-step::before {
-  display: none;
-}
-
-.guide-step .card-name::before {
-  content: counter(guide);
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  font-size: 0.8125rem;
-  font-weight: 650;
-  color: var(--accent-contrast);
-  background: var(--accent);
-  border-radius: 9px;
-  box-shadow: var(--shadow-sm);
-}
-
-.guide-optional {
-  font-size: 0.75rem;
-  font-weight: 550;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.guide-step figure {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-}
-
-.guide-step img {
-  display: block;
-  width: 100%;
-  height: 168px;
-  object-fit: cover;
-  object-position: top;
-  background: var(--surface-soft);
-}
-
-.guide-step figcaption {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin: 0;
-  padding: 14px 16px 16px;
-  font-size: 0.9375rem;
-  color: var(--text-muted);
-}
-
-.guide-step figcaption p {
-  margin: 0;
-}
-
 .pill {
   display: inline;
   padding: 0.05em 0.4em;
@@ -743,31 +657,6 @@ code {
   background: var(--surface-soft);
   border: 1px solid var(--border);
   border-radius: 5px;
-}
-
-.guide-notes {
-  display: grid;
-  gap: 12px;
-  margin-top: 22px;
-}
-
-.guide-notes .callout {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 0;
-}
-
-.guide-emoji {
-  flex: none;
-  font-size: 1.25rem;
-  line-height: 1.45;
-}
-
-@media (max-width: 768px) {
-  .guide-steps {
-    grid-template-columns: 1fr;
-  }
 }
 
 .chip {
