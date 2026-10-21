@@ -63,155 +63,305 @@
             </span>
             View on GitHub
           </a>
-          <a class="button button-ghost" href="donate/index.html">Support the project</a>
+          <a class="button button-ghost" href="donate/">Support the project</a>
         </div>
         <p class="hero-meta">GPL-3.0 licensed · maintained by <a href="https://github.com/xViada" target="_blank" rel="noopener noreferrer">@xViada</a></p>
       </section>
 
-      <section class="section" id="before-after" aria-labelledby="before-after-title">
-        <h2 class="section-title" id="before-after-title">What websites see</h2>
-        <div class="seen-grid">
-          <article class="seen seen-before">
-            <p class="seen-kicker">Without</p>
-            <h3 class="seen-name">OBS Virtual Camera</h3>
-            <p class="seen-status">Virtual camera</p>
-            <p class="seen-count">2 controls</p>
-            <ul class="seen-controls">
-              <li>Resolution</li>
-              <li>Frame rate</li>
-            </ul>
-          </article>
-          <div class="seen-arrow" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
-          </div>
-          <article class="seen seen-after">
-            <p class="seen-kicker">With VCam Bypass</p>
-            <h3 class="seen-name">HD Pro Webcam C920</h3>
-            <p class="seen-status">Physical webcam</p>
-            <p class="seen-count">12 controls</p>
-            <ul class="seen-controls">
-              <li>Resolution</li>
-              <li>Frame rate</li>
-              <li class="is-extra">Focus</li>
-              <li class="is-extra">Focus distance</li>
-              <li class="is-extra">Exposure</li>
-              <li class="is-extra">Exposure time</li>
-              <li class="is-extra">White balance</li>
-              <li class="is-extra">Color temperature</li>
-              <li class="is-extra">Brightness</li>
-              <li class="is-extra">Contrast</li>
-              <li class="is-extra">Saturation</li>
-              <li class="is-extra">Sharpness</li>
-            </ul>
-          </article>
-        </div>
-      </section>
-
       <section class="section" id="how-it-works" aria-labelledby="how-it-works-title">
         <h2 class="section-title" id="how-it-works-title">How it works</h2>
-        <ol class="how-grid">
-          <li class="card how-card">
-            <h3 class="card-name">Select the target webcam</h3>
-            <figure>
-              <img src="guide/images/02-target.gif" alt="VCam Bypass popup with the target webcam dropdown open" loading="lazy">
-              <figcaption>Select the virtual camera to mask.</figcaption>
-            </figure>
-          </li>
-          <li class="card how-card">
-            <h3 class="card-name">Choose a model</h3>
-            <figure>
-              <img src="guide/images/03-model.png" alt="Emulated webcam model list in the VCam Bypass popup" loading="lazy">
-              <figcaption>Choose the real webcam model to emulate.</figcaption>
-            </figure>
-          </li>
-          <li class="card how-card">
-            <h3 class="card-name">Enable and save</h3>
-            <figure>
-              <img src="guide/images/05-enable-save.png" alt="VCam Bypass switch turned on and the Save changes button" loading="lazy">
-              <figcaption>Turn the extension on and save the changes.</figcaption>
-            </figure>
-          </li>
-        </ol>
+        <div class="demo" id="demo" data-scene="before">
+          <div class="browser" role="img" aria-label="Animation: a video call site detects OBS Virtual Camera with 2 controls. In the VCam Bypass popup the user selects OBS Virtual Camera as the target webcam, chooses the Logitech C920 model, turns the extension on and saves. The site now sees HD Pro Webcam C920, a physical webcam with 12 controls, while the video stays the same.">
+            <div class="browser-bar">
+              <span class="browser-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="browser-address">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                meet.example.com
+              </span>
+              <span class="browser-ext" data-demo-target="ext">
+                <img src="assets/favicon.png" alt="" width="18" height="18">
+              </span>
+            </div>
+
+            <div class="browser-page">
+              <div class="call-video">
+                <svg class="call-person" viewBox="0 0 160 120" aria-hidden="true" focusable="false"><circle cx="80" cy="50" r="20"/><path d="M38 120c0-26 19-42 42-42s42 16 42 42z"/></svg>
+                <span class="call-live"><i></i>Live</span>
+                <span class="call-note">Your video is never touched</span>
+              </div>
+
+              <div class="device">
+                <p class="device-kicker">Camera this site sees</p>
+                <p class="device-name">
+                  <span class="device-swap is-before">OBS Virtual Camera</span>
+                  <span class="device-swap is-after">HD Pro Webcam C920</span>
+                </p>
+                <p class="device-status">
+                  <span class="device-swap is-before">Virtual camera</span>
+                  <span class="device-swap is-after">Physical webcam</span>
+                </p>
+                <p class="device-count"><span id="demo-count">2</span> controls</p>
+                <ul class="device-controls">
+                  <li>Resolution</li>
+                  <li>Frame rate</li>
+                  <li class="is-extra" style="--i: 0">Focus</li>
+                  <li class="is-extra" style="--i: 1">Focus distance</li>
+                  <li class="is-extra" style="--i: 2">Exposure</li>
+                  <li class="is-extra" style="--i: 3">Exposure time</li>
+                  <li class="is-extra" style="--i: 4">White balance</li>
+                  <li class="is-extra" style="--i: 5">Color temperature</li>
+                  <li class="is-extra" style="--i: 6">Brightness</li>
+                  <li class="is-extra" style="--i: 7">Contrast</li>
+                  <li class="is-extra" style="--i: 8">Saturation</li>
+                  <li class="is-extra" style="--i: 9">Sharpness</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="vp" aria-hidden="true">
+              <div class="vp-header">
+                <img src="assets/favicon.png" alt="" width="30" height="30">
+                <div class="vp-header-text">
+                  <div class="vp-h1">VCam Bypass</div>
+                  <p>Rewrites the device info exposed</p>
+                </div>
+                <div class="vp-header-actions">
+                  <span class="vp-switch" data-demo-target="switch"><span class="vp-slider"></span></span>
+                </div>
+              </div>
+
+              <div class="vp-card">
+                <div class="vp-card-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>
+                  Camera
+                </div>
+                <div class="vp-row">
+                  <div class="vp-label">Target webcam</div>
+                  <div class="vp-select" data-demo-target="target" data-demo-menu="target">
+                    <span class="vp-value" data-empty="Select a webcam" data-full="OBS Virtual Camera"></span>
+                  </div>
+                  <ul class="vp-menu" data-menu="target">
+                    <li>Select a webcam</li>
+                    <li>Integrated Camera</li>
+                    <li data-demo-target="target-pick">OBS Virtual Camera</li>
+                  </ul>
+                </div>
+                <div class="vp-row">
+                  <div class="vp-label">Emulated model (capabilities)</div>
+                  <div class="vp-select" data-demo-target="model" data-demo-menu="model">
+                    <span class="vp-value" data-empty="Generic webcam" data-full="Logitech C920 (1080p)"></span>
+                  </div>
+                  <ul class="vp-menu" data-menu="model">
+                    <li>Generic webcam</li>
+                    <li data-demo-target="model-pick">Logitech C920 (1080p)</li>
+                    <li>Logitech C922 Pro (1080p/720p60)</li>
+                    <li>Logitech BRIO (4K)</li>
+                    <li>Microsoft LifeCam HD-3000 (720p)</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="vp-actions">
+                <span class="vp-save" data-demo-target="save">Save changes</span>
+              </div>
+              <div class="vp-status">Saved. Reload the page to apply.</div>
+
+              <p class="vp-gh-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                VCam Bypass by xViada
+              </p>
+            </div>
+
+            <span class="demo-cursor" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M5 3l14 8-6.2 1.6L9.6 19z"/></svg></span>
+          </div>
+
+          <p class="demo-caption" id="demo-caption" aria-live="polite"></p>
+
+          <div class="demo-controls">
+            <ol class="demo-steps">
+              <li><button type="button" class="demo-step" data-step="1"><span class="demo-step-num">1</span>Pick your virtual camera</button></li>
+              <li><button type="button" class="demo-step" data-step="2"><span class="demo-step-num">2</span>Choose a webcam model</button></li>
+              <li><button type="button" class="demo-step" data-step="3"><span class="demo-step-num">3</span>Turn it on and save</button></li>
+            </ol>
+            <button type="button" class="icon-button demo-pause" id="demo-pause" aria-label="Pause animation" aria-pressed="false" hidden>
+              <svg class="icon-pause" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+              <svg class="icon-play" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+            </button>
+          </div>
+        </div>
       </section>
 
       <section class="section" id="features" aria-labelledby="features-title">
         <h2 class="section-title" id="features-title">Features</h2>
-        <div class="feature-layout">
-        <ul class="feature-grid">
-          <li class="card feature-card">
-            <span class="feature-icon" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
-            </span>
-            <h3 class="card-name">Real webcam profiles</h3>
-            <p class="card-text">Logitech C920, C922, BRIO, Microsoft LifeCam, etc.</p>
-          </li>
-          <li class="card feature-card">
-            <span class="feature-icon" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
-            </span>
-            <h3 class="card-name">Microphone mask</h3>
-            <p class="card-text">The microphone appears as the webcam's built-in mic.</p>
-          </li>
-          <li class="card feature-card">
-            <span class="feature-icon" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M1 1l22 22"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/></svg>
-            </span>
-            <h3 class="card-name">Hide other devices</h3>
-            <p class="card-text">The site only sees the emulated device.</p>
-          </li>
-          <li class="card feature-card">
-            <span class="feature-icon" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
-            </span>
-            <h3 class="card-name">New identity in one click</h3>
-            <p class="card-text">A consistent name, deviceId, and groupId.</p>
-          </li>
-          <li class="card feature-card">
-            <span class="feature-icon" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 18v3"/></svg>
-            </span>
-            <h3 class="card-name">Built-in test page</h3>
-            <p class="card-text">Shows exactly what a website sees.</p>
-          </li>
-          <li class="card feature-card">
-            <span class="feature-icon" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            </span>
-            <h3 class="card-name">Fully local</h3>
-            <p class="card-text">Everything happens in the browser, without touching the system or the video.</p>
-          </li>
-        </ul>
-        <figure class="popup-shot">
-          <img src="./docs/images/popup.png" alt="VCam Bypass extension popup" loading="lazy" data-hide-figure-on-error>
-        </figure>
+        <div class="feat" id="feat" data-feature="profiles">
+          <div class="feat-visual" aria-hidden="true">
+            <div class="feat-card">
+              <div class="feat-card-head">
+                <span>Devices this site sees</span>
+                <span class="feat-badge feat-badge-local">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  Local only
+                </span>
+              </div>
+              <ul class="feat-rows">
+                <li class="feat-row" data-row="camera">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/></svg>
+                  <span class="feat-row-text">
+                    <span class="feat-row-label" id="feat-cam-label">HD Pro Webcam C920 (046d:082d)</span>
+                    <span class="feat-row-id" id="feat-cam-id">8b5e0d3a9c1f…f0b</span>
+                  </span>
+                </li>
+                <li class="feat-row" data-row="mic">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
+                  <span class="feat-row-text">
+                    <span class="feat-row-label" id="feat-mic-label" data-real="Microphone (Realtek Audio)">Microphone (HD Pro Webcam C920) (046d:082d)</span>
+                    <span class="feat-row-id" id="feat-mic-id">1f3a5c7e90b2…d1f</span>
+                  </span>
+                </li>
+                <li class="feat-row feat-row-other" data-row="other">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/></svg>
+                  <span class="feat-row-text"><span class="feat-row-label">Integrated Camera</span></span>
+                </li>
+                <li class="feat-row feat-row-other" data-row="other">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
+                  <span class="feat-row-text"><span class="feat-row-label">Bluetooth Headset</span></span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <ul class="feat-list">
+            <li><button type="button" class="feat-item" data-feature="profiles">
+              <span class="feat-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></span>
+              <span class="feat-copy"><strong>Real webcam profiles</strong><span>Logitech C920, C922, BRIO, Microsoft LifeCam, etc.</span></span>
+            </button></li>
+            <li><button type="button" class="feat-item" data-feature="mic">
+              <span class="feat-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg></span>
+              <span class="feat-copy"><strong>Microphone mask</strong><span>The microphone appears as the webcam's built-in mic.</span></span>
+            </button></li>
+            <li><button type="button" class="feat-item" data-feature="hide">
+              <span class="feat-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M1 1l22 22"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/></svg></span>
+              <span class="feat-copy"><strong>Hide other devices</strong><span>The site only sees the emulated device.</span></span>
+            </button></li>
+            <li><button type="button" class="feat-item" data-feature="identity">
+              <span class="feat-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></span>
+              <span class="feat-copy"><strong>New identity in one click</strong><span>A consistent name, deviceId, and groupId.</span></span>
+            </button></li>
+            <li><button type="button" class="feat-item" data-feature="local">
+              <span class="feat-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+              <span class="feat-copy"><strong>Fully local</strong><span>Everything happens in the browser, without touching the system or the video.</span></span>
+            </button></li>
+          </ul>
         </div>
       </section>
 
       <section class="section" id="install" aria-labelledby="install-title">
         <h2 class="section-title" id="install-title">Installation</h2>
-        <ol class="steps">
-          <li>
-            <div>
-              <strong>Download the VCam-Bypass-v*.zip and extract it to a new folder.</strong>
-              <a class="button button-primary" href="https://github.com/xViada/VCam-Bypass/releases/latest" target="_blank" rel="noopener noreferrer">Download</a>
-            </div>
-          </li>
-          <li>
-            <div>
-              <strong>Open chrome://extensions and enable Developer mode.</strong>
-              <div class="code-copy">
-                <pre class="code-copy-block"><code>chrome://extensions</code></pre>
-                <button type="button" class="button button-ghost" id="copy-extensions" hidden>Copy</button>
+        <div class="inst" id="inst" data-step="1">
+          <div class="inst-visual" aria-hidden="true">
+            <div class="browser inst-browser">
+              <div class="browser-bar">
+                <span class="browser-dots"><i></i><i></i><i></i></span>
+                <span class="browser-address">
+                  <span class="inst-addr inst-addr-release">github.com/xViada/VCam-Bypass/releases</span>
+                  <span class="inst-addr inst-addr-ext">chrome://extensions</span>
+                </span>
+                <span class="inst-toolbar">
+                  <span class="inst-pinned"><img src="assets/favicon.png" alt="" width="18" height="18"></span>
+                  <span class="inst-puzzle">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M19.44 12.33c.36-.36.56-.85.56-1.37 0-1.07-.87-1.94-1.94-1.94-.52 0-1.01.2-1.37.56L15 11V7a1 1 0 0 0-1-1h-4l1.41-1.69c.36-.36.56-.85.56-1.37C11.97 1.87 11.1 1 10.03 1S8.09 1.87 8.09 2.94c0 .52.2 1.01.56 1.37L10 6H4a1 1 0 0 0-1 1v4l1.69-1.41c.36-.36.85-.56 1.37-.56 1.07 0 1.94.87 1.94 1.94S7.13 12.91 6.06 12.91c-.52 0-1.01-.2-1.37-.56L3 11v8a1 1 0 0 0 1 1h4l-1.41-1.69a1.94 1.94 0 1 1 2.75 0L8 20h6a1 1 0 0 0 1-1v-4l1.69 1.41c.36.36.85.56 1.37.56 1.07 0 1.94-.87 1.94-1.94 0-.52-.2-1.01-.56-1.37z"/></svg>
+                  </span>
+                </span>
+              </div>
+
+              <div class="inst-page">
+                <div class="inst-files">
+                  <div class="inst-file">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M10 6h1M10 9h1M10 12h1M10 15h1"/></svg>
+                    <span data-release-file>VCam-Bypass.zip</span>
+                  </div>
+                  <svg class="inst-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+                  <div class="inst-file inst-folder">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2z"/></svg>
+                    <span data-release-folder>VCam-Bypass</span>
+                  </div>
+                </div>
+
+                <div class="inst-ext">
+                  <div class="xp-head">
+                    <span class="xp-title">Extensions</span>
+                    <span class="xp-search"></span>
+                    <span class="xp-dev">Developer mode <span class="xp-toggle xp-dev-toggle"></span></span>
+                  </div>
+                  <div class="xp-tools">
+                    <span class="xp-tool xp-load">Load unpacked</span>
+                    <span class="xp-tool">Pack extension</span>
+                    <span class="xp-tool">Update</span>
+                  </div>
+                  <div class="xp-cards">
+                    <div class="xp-card xp-card-other">
+                      <div class="xp-card-top"><span class="xp-icon"></span><span class="xp-lines"><i></i><i></i></span></div>
+                      <div class="xp-card-foot"><span class="xp-link">Details</span><span class="xp-link">Remove</span><span class="xp-toggle is-on"></span></div>
+                    </div>
+                    <div class="xp-card xp-card-vcam">
+                      <div class="xp-card-top">
+                        <img src="assets/favicon.png" alt="" width="32" height="32">
+                        <span class="xp-card-text">
+                          <span class="xp-name">VCam Bypass <span class="xp-version" data-release-version></span></span>
+                          <span class="xp-desc">Makes any virtual camera appear in the browser as a physical webcam.</span>
+                        </span>
+                      </div>
+                      <div class="xp-card-foot">
+                        <span class="xp-link">Details</span><span class="xp-link">Remove</span>
+                        <svg class="xp-reload" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+                        <span class="xp-toggle is-on"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="xp-menu">
+                <div class="xp-menu-title">Extensions</div>
+                <div class="xp-menu-row">
+                  <img src="assets/favicon.png" alt="" width="16" height="16">
+                  <span>VCam Bypass</span>
+                  <svg class="xp-pin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
+                </div>
               </div>
             </div>
-          </li>
-          <li>
-            <div>
-              <strong>Click "Load unpacked" and select that folder.</strong>
-              <p>Choose the extracted folder, not the zip file. Reload any page where you use the camera so the extension can run.</p>
-            </div>
-          </li>
-        </ol>
+          </div>
+
+          <ol class="inst-list">
+            <li class="inst-item" data-step="1">
+              <button type="button" class="inst-head"><span class="inst-num">1</span>Download and unzip</button>
+              <div class="inst-body">
+                <p>Extract the zip into a folder you will keep.</p>
+                <a class="button button-primary" id="download-latest" href="https://github.com/xViada/VCam-Bypass/releases/latest" target="_blank" rel="noopener noreferrer">
+                  <span class="icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg></span>
+                  <span id="download-label">Download</span>
+                </a>
+              </div>
+            </li>
+            <li class="inst-item" data-step="2">
+              <button type="button" class="inst-head"><span class="inst-num">2</span>Turn on Developer mode</button>
+              <div class="inst-body">
+                <p>Open the extensions page and switch on Developer mode.</p>
+                <div class="code-copy">
+                  <pre class="code-copy-block"><code>chrome://extensions</code></pre>
+                  <button type="button" class="button button-ghost" id="copy-extensions" hidden>Copy</button>
+                </div>
+              </div>
+            </li>
+            <li class="inst-item" data-step="3">
+              <button type="button" class="inst-head"><span class="inst-num">3</span>Load and pin it</button>
+              <div class="inst-body">
+                <p>Click Load unpacked, choose the extracted folder, then pin it from the puzzle icon.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+        <p class="inst-note">Works in Chrome, Edge and Brave. To update, replace the folder's files with the new version and click <span aria-hidden="true">↻</span><span class="visually-hidden">reload</span> on the extension card.</p>
       </section>
     </main>
 
@@ -223,17 +373,9 @@
   </div>
 
   <script src="assets/js/theme.js"></script>
+  <script src="assets/js/demo.js"></script>
   <script>
     (function () {
-      document.querySelectorAll('[data-hide-figure-on-error]').forEach(function (img) {
-        function hideFigure() {
-          var figure = img.closest('figure');
-          if (figure) figure.hidden = true;
-        }
-        if (img.complete && img.naturalWidth === 0) hideFigure();
-        img.addEventListener('error', hideFigure);
-      });
-
       var copyButton = document.getElementById('copy-extensions');
       if (copyButton) {
         copyButton.hidden = false;
