@@ -83,8 +83,8 @@ Opera…).
 
 The site's camera list will now show something like
 `Integrated Webcam (1bcf:2b95)`, the `name (vendor:product)` format Chrome uses
-for real USB webcams. The **How to use** button in the popup opens an
-illustrated version of these steps.
+for real USB webcams. The **How to use** button in the popup opens the
+[illustrated guide](https://xviada.github.io/VCam-Bypass/guide/).
 
 ## Support
 
@@ -165,8 +165,6 @@ turned on with a mic mode set until one is selected.
 | `popup.html` / `popup.js` | Configuration UI. |
 | `request.html` / `request.js` | Asks for camera/mic permission to read the real device names. |
 | `test.html` / `test.js` | Test page that loads the same scripts as a real site and shows what it sees. |
-| `guide.html` / `guide.js` | Illustrated how-to guide. |
-
 ## Official builds
 
 The only official source of VCam Bypass is

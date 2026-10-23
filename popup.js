@@ -493,10 +493,13 @@
 
   updateModalLater.addEventListener("click", dismissUpdateModal);
 
-  function openExtensionPage(page) {
-    const url = chrome.runtime.getURL(page);
+  function openUrl(url) {
     if (chrome.tabs && chrome.tabs.create) chrome.tabs.create({ url });
     else window.open(url, "_blank");
+  }
+
+  function openExtensionPage(page) {
+    openUrl(chrome.runtime.getURL(page));
   }
 
   detectBtn.addEventListener("click", () => {
@@ -505,7 +508,9 @@
   });
 
   $("openTest").addEventListener("click", () => openExtensionPage("test.html"));
-  $("openGuide").addEventListener("click", () => openExtensionPage("guide.html"));
+  $("openGuide").addEventListener("click", () =>
+    openUrl("https://xviada.github.io/VCam-Bypass/guide/")
+  );
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== "local") return;
