@@ -67,7 +67,7 @@ Opera…).
 
 ## Quick start
 
-1. Open the popup and click **Detect cameras**. A tab opens asking for
+1. Open the popup and click **Detect devices**. A tab opens asking for
    camera/microphone permission. Click **Allow**.
 
 <img src="docs/images/permissions.png" alt="Camera permissions prompt" width="420">
@@ -106,7 +106,7 @@ donation page:
 | --- | --- |
 | **Enabled** | Turns the mask on or off. Needs a target webcam first. |
 | **Hide other devices** (eye icon) | Sites only see the emulated camera and mic. Other devices are removed from the list, and requests that don't name a device go to the emulated one. Speakers are left alone. |
-| **Target webcam** | The real (virtual) camera to mask. Filled in by **Detect cameras** and by sites where you already allowed the camera. |
+| **Target webcam** | The real (virtual) camera to mask. Filled in by **Detect devices** and by sites where you already allowed the camera. |
 | **Emulated model** | The real webcam to imitate: Logitech C920, C922 Pro, BRIO, Microsoft LifeCam HD-3000, an integrated laptop webcam or a generic one. Your real resolution and frame rate are kept, so they match the actual video. |
 | **New identity** | Picks a model with a matching name and new random `deviceId` / `groupId`. |
 | **Advanced capabilities** | Edit the name, IDs and every capability by hand. Any change switches the model to **Custom**. Values are checked and clamped on save. |
@@ -130,7 +130,7 @@ turned on with a mic mode set until one is selected.
 - **Nothing changes on the site:** reload the page after saving, and check the
   mask is enabled with a target selected.
 - **The target list is empty:** start the virtual camera, then click
-  **Detect cameras** again.
+  **Detect devices** again.
 - **The site still shows other cameras:** turn on **Hide other devices**.
 - **Not sure it works:** use **Test it**. It shows the label, IDs, settings and
   capabilities exactly as a page receives them.
@@ -159,6 +159,7 @@ turned on with a mic mode set until one is selected.
 | --- | --- |
 | `manifest.json` | Extension definition and content-script registration. |
 | `inject.js` | Runs in the page (MAIN world) at `document_start`. Patches `enumerateDevices()`, `getUserMedia()` (and legacy variants), and `MediaStreamTrack.getSettings()` / `getCapabilities()`. Translates fake IDs back to real ones before opening the device. |
+| `shared.js` | Helpers and defaults shared by the popup, the detect and test pages, the service worker and `bridge.js`. |
 | `profiles.js` | Capability profiles of real webcams and the builders for the spoofed settings and capabilities. Shared by the page, popup and service worker. |
 | `bridge.js` | Runs in the ISOLATED world. Passes the config from `chrome.storage` to `inject.js` and collects the camera names a page can see. |
 | `background.js` | Service worker. Generates the identity on install and checks for updates. |

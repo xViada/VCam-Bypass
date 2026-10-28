@@ -257,7 +257,7 @@
   function noTargetMessage() {
     return cameraCount
       ? "Select a target webcam before enabling the mask."
-      : 'No webcams detected. Click "Detect cameras", then select one.';
+      : 'No webcams detected. Click "Detect devices", then select one.';
   }
   const micModeHint = $("micModeHint");
   const updateModalText = $("updateModalText");
