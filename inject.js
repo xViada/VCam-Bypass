@@ -106,6 +106,8 @@
     return !!(config.enabled && config.hideOtherDevices);
   }
 
+  // Same mic labels as shared.js (used by the popup and test page); keep the
+  // two in step.
   function deriveMicLabel(webcamLabel) {
     const m = (webcamLabel || config.fakeLabel || "").trim().match(ID_RE);
     return m ? "Internal Microphone (" + m[2] + ")" : "Internal Microphone";

@@ -465,7 +465,7 @@
       cameraCaps: (fields.cameraProfile.value || "generic") === "custom" ? collectCaps() : null,
       micMode: fields.micMode.value || DEFAULTS.micMode,
       targetMicLabel: fields.micSelect.value || "",
-      fakeMicLabel: fields.fakeMicLabel.value.trim() || deriveMicLabel(fields.fakeLabel.value, DEFAULTS.fakeLabel, DEFAULTS.fakeMicLabel),
+      fakeMicLabel: fields.fakeMicLabel.value.trim() || deriveMicLabel(fields.fakeLabel.value),
       fakeMicDeviceId: fields.fakeMicDeviceId.value.trim() || DEFAULTS.fakeMicDeviceId,
       fakeMicGroupId: fields.fakeMicGroupId.value.trim() || DEFAULTS.fakeMicGroupId
     };
@@ -634,7 +634,7 @@
   });
 
   $("newMicIdentity").addEventListener("click", () => {
-    fields.fakeMicLabel.value = deriveMicLabel(fields.fakeLabel.value, DEFAULTS.fakeLabel, DEFAULTS.fakeMicLabel);
+    fields.fakeMicLabel.value = deriveMicLabel(fields.fakeLabel.value);
     fields.fakeMicDeviceId.value = randomHex(64);
     fields.fakeMicGroupId.value = randomHex(64);
     showStatus("New mic identity. Save to apply.");

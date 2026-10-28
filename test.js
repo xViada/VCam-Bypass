@@ -10,7 +10,6 @@
   const S = self.__vcamShared;
   const CONFIG_KEYS = S.CONFIG_KEYS;
   const DEFAULTS = S.createDefaults();
-  const ID_RE = S.ID_RE;
 
   const $ = (id) => document.getElementById(id);
 
@@ -131,24 +130,12 @@
     return navigator.mediaDevices.enumerateDevices().catch(function () { return []; });
   }
 
-  // ---- Mic label derivation (mirrors inject.js logic) ----
-
-  function linkedMicLabel(webcamLabel) {
-    var label = (webcamLabel || "").trim();
-    var m = label.match(ID_RE);
-    if (m) return "Microphone (" + m[1].trim() + ") (" + m[2] + ")";
-    return label ? "Microphone (" + label + ")" : "Microphone";
-  }
-
-  function deriveMicLabel(webcamLabel) {
-    var m = (webcamLabel || "").trim().match(ID_RE);
-    return m ? "Internal Microphone (" + m[2] + ")" : "Internal Microphone";
-  }
+  // ---- Expected mic label (what inject.js presents) ----
 
   function computeExpectedMicLabel(cfg) {
     var mode = (cfg.micMode || "off").toLowerCase();
-    if (mode === "auto") return linkedMicLabel(cfg.fakeLabel);
-    if (mode === "custom") return (cfg.fakeMicLabel || "").trim() || deriveMicLabel(cfg.fakeLabel);
+    if (mode === "auto") return S.linkedMicLabel(cfg.fakeLabel);
+    if (mode === "custom") return (cfg.fakeMicLabel || "").trim() || S.deriveMicLabel(cfg.fakeLabel);
     return null;
   }
 

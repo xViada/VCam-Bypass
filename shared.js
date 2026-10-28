@@ -51,11 +51,22 @@
     };
   }
 
-  function deriveMicLabel(webcamLabel, fallbackWebcamLabel, fallbackMicLabel) {
-    const m = (webcamLabel || fallbackWebcamLabel || DEFAULT_FAKE_LABEL)
-      .trim()
-      .match(ID_RE);
-    return m ? "Internal Microphone (" + m[2] + ")" : fallbackMicLabel || DEFAULT_MIC_LABEL;
+  // The mic label logic is mirrored in inject.js, which doesn't load this
+  // file; keep the two in step.
+
+  // Custom-mode default: "Internal Microphone (vid:pid)" with the camera's ids.
+  function deriveMicLabel(webcamLabel) {
+    const m = (webcamLabel || DEFAULT_FAKE_LABEL).trim().match(ID_RE);
+    return m ? "Internal Microphone (" + m[2] + ")" : "Internal Microphone";
+  }
+
+  // Auto mode: a mic on the same physical device as the camera, e.g.
+  // "Microphone (HD Pro Webcam C920) (046d:082d)".
+  function linkedMicLabel(webcamLabel) {
+    const label = (webcamLabel || "").trim();
+    const m = label.match(ID_RE);
+    if (m) return "Microphone (" + m[1].trim() + ") (" + m[2] + ")";
+    return label ? "Microphone (" + label + ")" : "Microphone";
   }
 
   function mergeDeviceLabels(storageKey, labels) {
@@ -103,6 +114,7 @@
     randomHex,
     createDefaults,
     deriveMicLabel,
+    linkedMicLabel,
     mergeDeviceLabels,
     requestDeviceAccess
   };
