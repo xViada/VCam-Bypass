@@ -38,7 +38,7 @@
   };
 
   // Image controls a real webcam exposes through getCapabilities().
-  var CAM_CONTROL_KEYS = [
+  const CAM_CONTROL_KEYS = [
     "brightness",
     "contrast",
     "saturation",
@@ -77,12 +77,12 @@
   }
 
   function kv(label, value, state) {
-    var div = document.createElement("div");
+    const div = document.createElement("div");
     div.className = "kv";
-    var k = document.createElement("span");
+    const k = document.createElement("span");
     k.className = "k";
     k.textContent = label;
-    var v = document.createElement("span");
+    const v = document.createElement("span");
     v.className = "v" + (state ? " " + state : "");
     v.textContent = value;
     div.appendChild(k);
@@ -118,8 +118,8 @@
       audioCtx = null;
       analyser = null;
     }
-    var cv = els.audioCanvas;
-    var ctx = cv && cv.getContext("2d");
+    const cv = els.audioCanvas;
+    const ctx = cv && cv.getContext("2d");
     if (ctx) ctx.clearRect(0, 0, cv.width, cv.height);
     els.audioLevel.textContent = "\u2014";
     els.meterWrap.classList.remove("active");
@@ -135,7 +135,7 @@
   // ---- Expected mic label (what inject.js presents) ----
 
   function computeExpectedMicLabel(cfg) {
-    var mode = (cfg.micMode || "off").toLowerCase();
+    const mode = (cfg.micMode || "off").toLowerCase();
     if (mode === "auto") return S.linkedMicLabel(cfg.fakeLabel);
     if (mode === "custom") return (cfg.fakeMicLabel || "").trim() || S.deriveMicLabel(cfg.fakeLabel);
     return null;
@@ -145,18 +145,18 @@
 
   function refreshDevices(cfg, preselect) {
     return enumerate().then(function (devices) {
-      var cams = devices.filter(function (d) { return d.kind === "videoinput" && d.deviceId; });
-      var mics = devices.filter(function (d) { return d.kind === "audioinput" && d.deviceId; });
+      const cams = devices.filter(function (d) { return d.kind === "videoinput" && d.deviceId; });
+      const mics = devices.filter(function (d) { return d.kind === "audioinput" && d.deviceId; });
 
       // Camera dropdown
-      var prevCam = els.camPick.value;
+      const prevCam = els.camPick.value;
       els.camPick.innerHTML = "";
       cams.forEach(function (d) {
         els.camPick.appendChild(new Option(d.label || "Camera", d.deviceId));
       });
 
       if (preselect) {
-        var fakeCam = cfg.fakeLabel && cams.find(function (d) { return d.label === cfg.fakeLabel; });
+        const fakeCam = cfg.fakeLabel && cams.find(function (d) { return d.label === cfg.fakeLabel; });
         if (fakeCam) els.camPick.value = fakeCam.deviceId;
         else if (prevCam && cams.some(function (d) { return d.deviceId === prevCam; })) els.camPick.value = prevCam;
         else if (cams.length) els.camPick.value = cams[0].deviceId;
@@ -165,9 +165,9 @@
       }
 
       // Mic dropdown (filter out default/communications pseudo-entries)
-      var prevMic = els.micPick.value;
+      const prevMic = els.micPick.value;
       els.micPick.innerHTML = "";
-      var realMics = mics.filter(function (d) {
+      const realMics = mics.filter(function (d) {
         return d.deviceId !== "default" && d.deviceId !== "communications";
       });
       realMics.forEach(function (d) {
@@ -175,9 +175,9 @@
       });
 
       if (preselect) {
-        var expectedLabel = computeExpectedMicLabel(cfg);
-        var fakeMic = expectedLabel && realMics.find(function (d) { return d.label === expectedLabel; });
-        var fakeMic2 = !fakeMic && cfg.fakeMicLabel && realMics.find(function (d) { return d.label === cfg.fakeMicLabel; });
+        const expectedLabel = computeExpectedMicLabel(cfg);
+        const fakeMic = expectedLabel && realMics.find(function (d) { return d.label === expectedLabel; });
+        const fakeMic2 = !fakeMic && cfg.fakeMicLabel && realMics.find(function (d) { return d.label === cfg.fakeMicLabel; });
         if (fakeMic) els.micPick.value = fakeMic.deviceId;
         else if (fakeMic2) els.micPick.value = fakeMic2.deviceId;
         else if (prevMic && realMics.some(function (d) { return d.deviceId === prevMic; })) els.micPick.value = prevMic;
@@ -195,22 +195,22 @@
     els.deviceList.innerHTML = "";
 
     if (!cams.length && !mics.length) {
-      var p = document.createElement("p");
+      const p = document.createElement("p");
       p.className = "empty";
       p.textContent = "No devices detected. Make sure your apps are running, then refresh.";
       els.deviceList.appendChild(p);
       return;
     }
 
-    var expectedMicLabel = computeExpectedMicLabel(cfg);
+    const expectedMicLabel = computeExpectedMicLabel(cfg);
 
     if (cams.length) {
-      var hCam = document.createElement("p");
+      const hCam = document.createElement("p");
       hCam.className = "dl-section";
       hCam.textContent = "Cameras (" + cams.length + ")";
       els.deviceList.appendChild(hCam);
       cams.forEach(function (d) {
-        var isFake = cfg.fakeLabel && d.label === cfg.fakeLabel;
+        const isFake = cfg.fakeLabel && d.label === cfg.fakeLabel;
         els.deviceList.appendChild(
           kv(d.label || "(no label)", "id " + shortId(d.deviceId), isFake ? "good" : "muted")
         );
@@ -218,12 +218,12 @@
     }
 
     if (mics.length) {
-      var hMic = document.createElement("p");
+      const hMic = document.createElement("p");
       hMic.className = "dl-section";
       hMic.textContent = "Microphones (" + mics.length + ")";
       els.deviceList.appendChild(hMic);
       mics.forEach(function (d) {
-        var isFake =
+        const isFake =
           (expectedMicLabel && d.label === expectedMicLabel) ||
           (cfg.fakeMicLabel && d.label === cfg.fakeMicLabel);
         els.deviceList.appendChild(
@@ -245,7 +245,7 @@
         setVerdict(camV, "err", "Not supported", "This browser does not expose camera access.");
         return;
       }
-      var chosen = els.camPick.value;
+      const chosen = els.camPick.value;
       if (!chosen) {
         setVerdict(
           camV,
@@ -265,10 +265,10 @@
           camStream = stream;
           els.preview.srcObject = stream;
 
-          var track = stream.getVideoTracks()[0];
-          var settings = track && track.getSettings ? track.getSettings() : {};
-          var caps = track && track.getCapabilities ? track.getCapabilities() : {};
-          var label = track ? track.label : "";
+          const track = stream.getVideoTracks()[0];
+          const settings = track && track.getSettings ? track.getSettings() : {};
+          const caps = track && track.getCapabilities ? track.getCapabilities() : {};
+          const label = track ? track.label : "";
 
           renderCamReport(label, settings, caps);
           return refreshDevices(cfg, false).then(function () {
@@ -306,7 +306,7 @@
     );
     els.camReport.appendChild(kv("facingMode", settings.facingMode || "(none)"));
 
-    var controls = listControls(caps);
+    const controls = listControls(caps);
     els.camReport.appendChild(
       kv(
         "image controls",
@@ -320,7 +320,7 @@
   }
 
   function judgeCam(cfg, label, caps) {
-    var controls = listControls(caps);
+    const controls = listControls(caps);
 
     if (!cfg.enabled) {
       setVerdict(
@@ -341,7 +341,7 @@
       return;
     }
 
-    var looksFaked = cfg.fakeLabel && label === cfg.fakeLabel;
+    const looksFaked = cfg.fakeLabel && label === cfg.fakeLabel;
     if (looksFaked && controls.length) {
       setVerdict(
         camV,
@@ -388,9 +388,9 @@
         return;
       }
 
-      var chosen = els.micPick.value;
+      const chosen = els.micPick.value;
       if (!chosen) {
-        var mode = (cfg.micMode || "off").toLowerCase();
+        const mode = (cfg.micMode || "off").toLowerCase();
         if (mode === "off") {
           setVerdict(
             micV,
@@ -418,9 +418,9 @@
           micStream = stream;
           startAudioMeter(stream);
 
-          var track = stream.getAudioTracks()[0];
-          var settings = track && track.getSettings ? track.getSettings() : {};
-          var label = track ? track.label : "";
+          const track = stream.getAudioTracks()[0];
+          const settings = track && track.getSettings ? track.getSettings() : {};
+          const label = track ? track.label : "";
 
           renderMicReport(label, settings);
           return refreshDevices(cfg, false).then(function () {
@@ -443,20 +443,20 @@
   function startAudioMeter(stream) {
     try {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      var source = audioCtx.createMediaStreamSource(stream);
+      const source = audioCtx.createMediaStreamSource(stream);
       analyser = audioCtx.createAnalyser();
       analyser.fftSize = 2048;
       analyser.smoothingTimeConstant = 0.82;
       source.connect(analyser);
 
-      var canvas = els.audioCanvas;
-      var ctx = canvas.getContext("2d");
-      var timeData = new Uint8Array(analyser.fftSize);
-      var dpr = window.devicePixelRatio || 1;
-      var POINTS = 128;
+      const canvas = els.audioCanvas;
+      const ctx = canvas.getContext("2d");
+      const timeData = new Uint8Array(analyser.fftSize);
+      const dpr = window.devicePixelRatio || 1;
+      const POINTS = 128;
 
       function resize() {
-        var rect = canvas.parentElement.getBoundingClientRect();
+        const rect = canvas.parentElement.getBoundingClientRect();
         canvas.width = Math.round(rect.width * dpr);
         canvas.height = Math.round(rect.height * dpr);
       }
@@ -468,28 +468,28 @@
         if (!micStream) return;
         analyser.getByteTimeDomainData(timeData);
 
-        var W = canvas.width / dpr;
-        var H = canvas.height / dpr;
+        const W = canvas.width / dpr;
+        const H = canvas.height / dpr;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, W, H);
 
-        var step = Math.max(1, Math.floor(timeData.length / POINTS));
-        var sliceW = W / (POINTS - 1);
+        const step = Math.max(1, Math.floor(timeData.length / POINTS));
+        const sliceW = W / (POINTS - 1);
 
         // Collect points
-        var pts = [];
-        var sum = 0;
-        for (var i = 0; i < POINTS; i++) {
-          var idx = Math.min(i * step, timeData.length - 1);
-          var v = (timeData[idx] - 128) / 128;
+        const pts = [];
+        let sum = 0;
+        for (let i = 0; i < POINTS; i++) {
+          const idx = Math.min(i * step, timeData.length - 1);
+          const v = (timeData[idx] - 128) / 128;
           sum += v * v;
           pts.push({ x: i * sliceW, y: H / 2 + v * H * 0.38 });
         }
-        var rms = Math.sqrt(sum / POINTS);
-        var level = Math.min(1, rms * 4.5);
+        const rms = Math.sqrt(sum / POINTS);
+        const level = Math.min(1, rms * 4.5);
 
         // Gradient stroke
-        var grad = ctx.createLinearGradient(0, 0, W, 0);
+        const grad = ctx.createLinearGradient(0, 0, W, 0);
         grad.addColorStop(0, "rgba(91,140,255,0.6)");
         grad.addColorStop(0.5, "rgba(138,108,255,0.8)");
         grad.addColorStop(1, "rgba(74,222,128,0.6)");
@@ -505,9 +505,9 @@
         // Smooth bezier curve through points
         ctx.beginPath();
         ctx.moveTo(pts[0].x, pts[0].y);
-        for (var i = 1; i < pts.length - 1; i++) {
-          var mx = (pts[i].x + pts[i + 1].x) / 2;
-          var my = (pts[i].y + pts[i + 1].y) / 2;
+        for (let i = 1; i < pts.length - 1; i++) {
+          const mx = (pts[i].x + pts[i + 1].x) / 2;
+          const my = (pts[i].y + pts[i + 1].y) / 2;
           ctx.quadraticCurveTo(pts[i].x, pts[i].y, mx, my);
         }
         ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
@@ -521,7 +521,7 @@
         ctx.fillStyle = "rgba(91,140,255," + (0.02 + level * 0.06) + ")";
         ctx.fill();
 
-        var pct = Math.round(level * 100);
+        const pct = Math.round(level * 100);
         els.audioLevel.textContent = pct + "%";
         els.meterWrap.classList.toggle("active", pct > 3);
         els.audioLabel.textContent =
@@ -546,7 +546,7 @@
     if (settings.channelCount) {
       els.micReport.appendChild(kv("channels", String(settings.channelCount)));
     }
-    var features = [];
+    const features = [];
     if (settings.echoCancellation) features.push("echo cancel");
     if (settings.noiseSuppression) features.push("noise suppress");
     if (settings.autoGainControl) features.push("auto gain");
@@ -556,7 +556,7 @@
   }
 
   function judgeMic(cfg, label, settings) {
-    var mode = (cfg.micMode || "off").toLowerCase();
+    const mode = (cfg.micMode || "off").toLowerCase();
 
     if (mode === "off") {
       setVerdict(
@@ -588,9 +588,9 @@
       return;
     }
 
-    var expectedLabel = computeExpectedMicLabel(cfg);
-    var labelMatches = expectedLabel && label === expectedLabel;
-    var altMatch = !labelMatches && cfg.fakeMicLabel && label === cfg.fakeMicLabel;
+    const expectedLabel = computeExpectedMicLabel(cfg);
+    const labelMatches = expectedLabel && label === expectedLabel;
+    const altMatch = !labelMatches && cfg.fakeMicLabel && label === cfg.fakeMicLabel;
 
     if (labelMatches || altMatch) {
       if (mode === "auto" && settings.groupId === cfg.fakeGroupId) {
@@ -646,7 +646,7 @@
           return refreshDevices(cfg, true);
         })
         .then(function (result) {
-          var tasks = [];
+          const tasks = [];
           if (result.cams && result.cams.length) {
             tasks.push(runCameraTest());
           } else {
@@ -660,7 +660,7 @@
           if (result.mics && result.mics.length) {
             tasks.push(runMicTest());
           } else {
-            var mode = (cfg.micMode || "off").toLowerCase();
+            const mode = (cfg.micMode || "off").toLowerCase();
             if (mode === "off") {
               setVerdict(micV, "info", "Mic mask is off", "Microphone masking is disabled.");
             } else {
@@ -670,7 +670,7 @@
           return Promise.all(tasks);
         })
         .catch(function (e) {
-          var msg =
+          const msg =
             "Camera/mic permission is required to test (" +
             (e && e.name ? e.name : "error") +
             ").";
