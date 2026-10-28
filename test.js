@@ -651,10 +651,8 @@
     setVerdict(micV, "", "Requesting access\u2026", "Waiting for permission grant.");
 
     return getConfig().then(function (cfg) {
-      return navigator.mediaDevices
-        .getUserMedia({ video: true, audio: true })
-        .then(function (stream) {
-          stream.getTracks().forEach(function (t) { t.stop(); });
+      return S.requestDeviceAccess()
+        .then(function () {
           return refreshDevices(cfg, true);
         })
         .then(function (result) {

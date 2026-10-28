@@ -7,7 +7,7 @@
 (function () {
   "use strict";
 
-  const mergeDeviceLabels = self.__vcamShared.mergeDeviceLabels;
+  const { mergeDeviceLabels, requestDeviceAccess } = self.__vcamShared;
 
   const statusEl = document.getElementById("status");
   const listEl = document.getElementById("list");
@@ -42,12 +42,8 @@
       return;
     }
 
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        stream.getTracks().forEach((t) => t.stop());
-        return navigator.mediaDevices.enumerateDevices();
-      })
+    requestDeviceAccess()
+      .then(() => navigator.mediaDevices.enumerateDevices())
       .then((devices) => {
         const cams = [];
         const mics = [];

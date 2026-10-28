@@ -75,6 +75,26 @@
     });
   }
 
+  // Opens and releases the camera and mic so device labels become readable.
+  // A combined request fails as a whole when one kind is missing or blocked
+  // (a PC with no microphone, say), so each kind is then asked for on its own
+  // and the call only fails when neither can be opened.
+  function requestDeviceAccess() {
+    const open = (c) =>
+      navigator.mediaDevices.getUserMedia(c).then((stream) => {
+        stream.getTracks().forEach((t) => t.stop());
+      });
+    const tryOpen = (c) => open(c).then(() => true, () => false);
+
+    return open({ video: true, audio: true }).catch((err) =>
+      tryOpen({ video: true }).then((video) =>
+        tryOpen({ audio: true }).then((audio) => {
+          if (!video && !audio) throw err;
+        })
+      )
+    );
+  }
+
   root.__vcamShared = {
     DEFAULT_FAKE_LABEL,
     DEFAULT_MIC_LABEL,
@@ -83,6 +103,7 @@
     randomHex,
     createDefaults,
     deriveMicLabel,
-    mergeDeviceLabels
+    mergeDeviceLabels,
+    requestDeviceAccess
   };
 })(typeof self !== "undefined" ? self : this);
