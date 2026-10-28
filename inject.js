@@ -306,49 +306,57 @@
   }
 
   // --- Constraint translation (fakeId -> real) ---
+  // Everything here returns copies: the page keeps its own constraints object,
+  // and rewriting it in place would leave real ids where it stored fake ones.
   function translateConstraintValue(val, map) {
-    if (typeof val === "string") return map[val] || val;
+    const tr = (v) => (typeof v === "string" ? map[v] || v : v);
+    if (typeof val === "string") return tr(val);
+    if (Array.isArray(val)) return val.map(tr);
     if (val && typeof val === "object") {
+      const out = Object.assign({}, val);
       ["exact", "ideal"].forEach((key) => {
-        if (typeof val[key] === "string") {
-          val[key] = map[val[key]] || val[key];
-        } else if (Array.isArray(val[key])) {
-          val[key] = val[key].map((v) => (typeof v === "string" ? map[v] || v : v));
-        }
+        if (typeof out[key] === "string") out[key] = tr(out[key]);
+        else if (Array.isArray(out[key])) out[key] = out[key].map(tr);
       });
+      return out;
     }
     return val;
   }
 
   function stripFakeGroupId(obj, fakeGroupId) {
-    if (!obj || typeof obj !== "object" || !("groupId" in obj)) return;
+    if (!("groupId" in obj)) return;
     const g = obj.groupId;
     if (g === fakeGroupId || (g && (g.exact === fakeGroupId || g.ideal === fakeGroupId))) {
       delete obj.groupId;
     }
   }
 
+  function translateTrackConstraints(req, map, fakeGroupId) {
+    if (!req || typeof req !== "object") return req;
+    const out = Object.assign({}, req);
+    if ("deviceId" in out) out.deviceId = translateConstraintValue(out.deviceId, map);
+    stripFakeGroupId(out, fakeGroupId);
+    if (Array.isArray(out.advanced)) {
+      out.advanced = out.advanced.map((set) => translateTrackConstraints(set, map, fakeGroupId));
+    }
+    return out;
+  }
+
   function translateConstraints(constraints) {
     if (!constraints || typeof constraints !== "object") return constraints;
     try {
-      const video = constraints.video;
-      if (video && typeof video === "object") {
-        if ("deviceId" in video) {
-          video.deviceId = translateConstraintValue(video.deviceId, fakeToReal);
-        }
-        stripFakeGroupId(video, config.fakeGroupId);
+      const out = Object.assign({}, constraints);
+      if ("video" in out) {
+        out.video = translateTrackConstraints(out.video, fakeToReal, config.fakeGroupId);
       }
-
       const micId = micIdentity();
-      const audio = constraints.audio;
-      if (micId && audio && typeof audio === "object") {
-        if ("deviceId" in audio) {
-          audio.deviceId = translateConstraintValue(audio.deviceId, fakeMicToReal);
-        }
-        stripFakeGroupId(audio, micId.groupId);
+      if (micId && "audio" in out) {
+        out.audio = translateTrackConstraints(out.audio, fakeMicToReal, micId.groupId);
       }
-    } catch (e) {}
-    return constraints;
+      return out;
+    } catch (e) {
+      return constraints;
+    }
   }
 
   // --- Device pinning (only while the other devices are hidden) ---
@@ -359,7 +367,8 @@
     if (!req || typeof req !== "object") return false;
     const d = req.deviceId;
     if (!d) return false;
-    return typeof d === "string" ? !!d : !!(d.exact || d.ideal);
+    if (typeof d === "string" || Array.isArray(d)) return d.length > 0;
+    return !!(d.exact || d.ideal);
   }
 
   function pinConstraints(constraints) {
