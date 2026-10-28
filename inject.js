@@ -226,18 +226,17 @@
           return { masked: false, info: dev };
         });
 
-        return hideNonMasked(entries);
+        return filterDevices(entries);
       });
     };
   }
 
-  // Drops every camera/mic the page has no business seeing, leaving only the
-  // emulated ones. A kind is filtered only when it actually has a masked
-  // replacement, so a disconnected virtual camera (or a mic mask that is off)
-  // never leaves the page with an empty device list.
-  function hideNonMasked(entries) {
-    if (!hidingOthers()) return entries.map((e) => e.info);
-
+  // While hiding, drops every camera/mic the page has no business seeing,
+  // leaving only the emulated ones. A kind is filtered only when it actually
+  // has a masked replacement, so a disconnected virtual camera (or a mic mask
+  // that is off) never leaves the page with an empty device list.
+  function filterDevices(entries) {
+    const hiding = hidingOthers();
     const maskedKinds = Object.create(null);
     entries.forEach((e) => {
       if (e.masked) maskedKinds[e.info.kind] = true;
@@ -248,7 +247,7 @@
 
     entries.forEach((e) => {
       if (!e.masked) {
-        if (!maskedKinds[e.info.kind]) out.push(e.info);
+        if (!hiding || !maskedKinds[e.info.kind]) out.push(e.info);
         return;
       }
       // Several real devices can collapse onto one emulated identity (two
