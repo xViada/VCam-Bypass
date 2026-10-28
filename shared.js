@@ -89,6 +89,17 @@
     return false;
   }
 
+  // Replaces the stored list with what an explicit detection just saw, so
+  // devices that are gone stop being offered. An empty result (that kind was
+  // not granted) leaves the list alone.
+  function replaceDeviceLabels(storageKey, labels) {
+    const fresh = [...new Set(labels.filter(Boolean))];
+    if (!fresh.length) return Promise.resolve();
+    return new Promise((resolve) => {
+      chrome.storage.local.set({ [storageKey]: fresh }, resolve);
+    });
+  }
+
   function mergeDeviceLabels(storageKey, labels) {
     const fresh = labels.filter(Boolean);
     if (!fresh.length) return Promise.resolve();
@@ -137,6 +148,7 @@
     linkedMicLabel,
     isNewerVersion,
     mergeDeviceLabels,
+    replaceDeviceLabels,
     requestDeviceAccess
   };
 })(typeof self !== "undefined" ? self : this);

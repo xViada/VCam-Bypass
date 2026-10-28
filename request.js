@@ -7,7 +7,7 @@
 (function () {
   "use strict";
 
-  const { mergeDeviceLabels, requestDeviceAccess } = self.__vcamShared;
+  const { replaceDeviceLabels, requestDeviceAccess } = self.__vcamShared;
 
   const statusEl = document.getElementById("status");
   const listEl = document.getElementById("list");
@@ -53,8 +53,8 @@
         });
 
         return Promise.all([
-          mergeDeviceLabels("__availableCameras", cams),
-          mergeDeviceLabels("__availableMics", mics)
+          replaceDeviceLabels("__availableCameras", cams),
+          replaceDeviceLabels("__availableMics", mics)
         ]).then(() => {
           if (!cams.length && !mics.length) {
             setStatus("Permission granted but no named devices were detected.", "#e5c07b");
