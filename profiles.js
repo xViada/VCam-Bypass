@@ -166,10 +166,14 @@
     return PROFILES.map((p) => ({ id: p.id, name: p.name, label: p.label }));
   }
 
-  // A random curated profile that has a real label, for "new identity".
-  function pickRandom() {
+  // A random curated profile that has a real label, for "new identity". The
+  // label in use is skipped, so asking for a new identity always changes it.
+  function pickRandom(currentLabel) {
+    const current = (currentLabel || "").trim().toLowerCase();
     const named = PROFILES.filter((p) => p.label);
-    return named[Math.floor(Math.random() * named.length)] || get("generic");
+    const fresh = named.filter((p) => p.label.toLowerCase() !== current);
+    const pool = fresh.length ? fresh : named;
+    return pool[Math.floor(Math.random() * pool.length)] || get("generic");
   }
 
   // Synthesizes a getCapabilities() result. Resolution/frame-rate maxima come

@@ -614,27 +614,15 @@
 
   $("save").addEventListener("click", () => applyForm("Saved. Reload the page to apply."));
 
-  function pickCameraIdentity() {
-    return new Promise((resolve) => {
-      chrome.runtime.sendMessage({ type: "newCameraIdentity" }, (resp) => {
-        if (!chrome.runtime.lastError && resp && resp.name) {
-          resolve({ name: resp.name, profile: resp.profile || "generic" });
-        } else {
-          resolve({ name: DEFAULTS.fakeLabel, profile: "generic" });
-        }
-      });
-    });
-  }
-
   $("newCamIdentity").addEventListener("click", () => {
-    pickCameraIdentity().then((id) => {
-      fields.fakeLabel.value = id.name;
-      fields.fakeDeviceId.value = randomHex(64);
-      fields.fakeGroupId.value = randomHex(64);
-      populateCameraProfiles(id.profile);
-      applyModelToForm(id.profile);
-      showStatus("New camera identity. Save to apply.");
-    });
+    if (!profilesApi) return;
+    const p = profilesApi.pickRandom(fields.fakeLabel.value);
+    fields.fakeLabel.value = p.label || DEFAULTS.fakeLabel;
+    fields.fakeDeviceId.value = randomHex(64);
+    fields.fakeGroupId.value = randomHex(64);
+    populateCameraProfiles(p.id);
+    applyModelToForm(p.id);
+    showStatus("New camera identity. Save to apply.");
   });
 
   $("newMicIdentity").addEventListener("click", () => {

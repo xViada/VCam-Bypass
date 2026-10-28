@@ -103,11 +103,3 @@ function onBoot() {
 
 chrome.runtime.onInstalled.addListener(onBoot);
 chrome.runtime.onStartup.addListener(onBoot);
-
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg && msg.type === "newCameraIdentity") {
-    const p = self.__vcamProfiles.pickRandom();
-    sendResponse({ name: p.label || DEFAULT_FAKE_LABEL, profile: p.id });
-    return false;
-  }
-});
