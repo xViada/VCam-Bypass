@@ -457,13 +457,24 @@
     return stream;
   }
 
-  function trackDeviceId(track) {
+  // The unpatched getSettings, captured before the prototype is masked below:
+  // reading through the masked one would hand back the fake ids, and a track
+  // from the target would then look like it came from some other device.
+  const origTrackGetSettings =
+    window.MediaStreamTrack && window.MediaStreamTrack.prototype.getSettings;
+
+  function realTrackSettings(track) {
     try {
-      const s = track.getSettings ? track.getSettings() : null;
-      return s && s.deviceId ? s.deviceId : null;
+      if (typeof origTrackGetSettings === "function") return origTrackGetSettings.call(track);
+      return track.getSettings ? track.getSettings() : null;
     } catch (e) {
       return null;
     }
+  }
+
+  function trackDeviceId(track) {
+    const s = realTrackSettings(track);
+    return s && s.deviceId ? s.deviceId : null;
   }
 
   function maskTrack(track) {
@@ -492,16 +503,14 @@
       isMicTargetLabel(track.label) || !!(realDeviceId && targetMicRealIds[realDeviceId]);
 
     if (!matched && targetMicRealGroupId) {
-      try {
-        const s = track.getSettings ? track.getSettings() : null;
-        if (s && s.groupId === targetMicRealGroupId) {
-          matched = true;
-          if (s.deviceId) {
-            targetMicRealIds[s.deviceId] = true;
-            if (!isPseudoId(s.deviceId)) fakeMicToReal[micId.deviceId] = s.deviceId;
-          }
+      const s = realTrackSettings(track);
+      if (s && s.groupId === targetMicRealGroupId) {
+        matched = true;
+        if (s.deviceId) {
+          targetMicRealIds[s.deviceId] = true;
+          if (!isPseudoId(s.deviceId)) fakeMicToReal[micId.deviceId] = s.deviceId;
         }
-      } catch (e) {}
+      }
     }
 
     if (!matched) return;
@@ -543,16 +552,7 @@
   // and frame rate from the underlying stream.
   function applyVideoTrackMask(track, identity) {
     const profile = resolveCameraProfile();
-    const origSettings =
-      typeof track.getSettings === "function" ? track.getSettings.bind(track) : null;
-
-    const realSettings = () => {
-      try {
-        return origSettings ? origSettings() : {};
-      } catch (e) {
-        return {};
-      }
-    };
+    const realSettings = () => realTrackSettings(track) || {};
 
     // Wraps a track method: synthesize from the profile when available, else
     // fall back to the real output with just the ids masked.
@@ -654,8 +654,6 @@
         }
       };
 
-      const origSettingsProto = TrackProto.getSettings;
-
       ["getSettings", "getCapabilities"].forEach((name) => {
         const orig = TrackProto[name];
         if (typeof orig !== "function") return;
@@ -665,10 +663,7 @@
           if (!config.enabled) return out;
           try {
             if (out && out.deviceId && targetRealIds[out.deviceId]) {
-              const real =
-                isCaps && typeof origSettingsProto === "function"
-                  ? origSettingsProto.apply(this, [])
-                  : out;
+              const real = isCaps ? realTrackSettings(this) || {} : out;
               const synth = synthVideo(isCaps, real);
               if (synth) return synth;
             }
