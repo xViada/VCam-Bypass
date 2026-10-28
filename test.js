@@ -56,6 +56,7 @@
   let audioCtx = null;
   let analyser = null;
   let rafId = null;
+  let meterResize = null;
 
   function getConfig() {
     return new Promise((resolve) => {
@@ -107,6 +108,7 @@
 
   function stopMicStream() {
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    if (meterResize) { window.removeEventListener("resize", meterResize); meterResize = null; }
     if (micStream) {
       try { micStream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
       micStream = null;
@@ -459,6 +461,7 @@
         canvas.height = Math.round(rect.height * dpr);
       }
       resize();
+      meterResize = resize;
       window.addEventListener("resize", resize);
 
       function tick() {
