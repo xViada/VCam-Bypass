@@ -570,7 +570,7 @@
   }
 
   // Points the download button at the latest release zip. If GitHub can't be
-  // reached the button keeps linking to the releases page.
+  // reached the button keeps its static /releases/latest/download/ link.
   function latestRelease() {
     var link = document.getElementById('download-latest');
     if (!link || !window.fetch) return;
