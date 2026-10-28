@@ -69,6 +69,26 @@
     return label ? "Microphone (" + label + ")" : "Microphone";
   }
 
+  function parseVersion(v) {
+    const m = String(v || "")
+      .trim()
+      .replace(/^v/i, "")
+      .match(/^(\d+)\.(\d+)\.(\d+)/);
+    if (!m) return null;
+    return [+m[1], +m[2], +m[3]];
+  }
+
+  function isNewerVersion(latest, current) {
+    const a = parseVersion(latest);
+    const b = parseVersion(current);
+    if (!a || !b) return false;
+    for (let i = 0; i < 3; i++) {
+      if (a[i] > b[i]) return true;
+      if (a[i] < b[i]) return false;
+    }
+    return false;
+  }
+
   function mergeDeviceLabels(storageKey, labels) {
     const fresh = labels.filter(Boolean);
     if (!fresh.length) return Promise.resolve();
@@ -115,6 +135,7 @@
     createDefaults,
     deriveMicLabel,
     linkedMicLabel,
+    isNewerVersion,
     mergeDeviceLabels,
     requestDeviceAccess
   };

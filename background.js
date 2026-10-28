@@ -8,7 +8,7 @@
 
 importScripts("shared.js", "profiles.js");
 
-const { randomHex, DEFAULT_FAKE_LABEL } = self.__vcamShared;
+const { randomHex, isNewerVersion, DEFAULT_FAKE_LABEL } = self.__vcamShared;
 
 // Fills only the missing identity fields so values stay stable across sessions.
 function ensureDefaults() {
@@ -48,26 +48,6 @@ function ensureDefaults() {
 const GITHUB_REPO = "xViada/VCam-Bypass";
 const RELEASES_API = "https://api.github.com/repos/" + GITHUB_REPO + "/releases/latest";
 
-function parseVersion(v) {
-  const m = String(v || "")
-    .trim()
-    .replace(/^v/i, "")
-    .match(/^(\d+)\.(\d+)\.(\d+)/);
-  if (!m) return null;
-  return [+m[1], +m[2], +m[3]];
-}
-
-function isNewerVersion(latest, current) {
-  const a = parseVersion(latest);
-  const b = parseVersion(current);
-  if (!a || !b) return false;
-  for (let i = 0; i < 3; i++) {
-    if (a[i] > b[i]) return true;
-    if (a[i] < b[i]) return false;
-  }
-  return false;
-}
-
 function setUpdateBadge(show) {
   if (show) {
     chrome.action.setBadgeText({ text: "!" });
@@ -106,7 +86,14 @@ function checkForUpdate() {
 
       setUpdateBadge(updateAvailable);
     })
-    .catch(() => {});
+    .catch(() => {
+      // Keep the last known result, but only while it is still ahead of the
+      // running version: after an update it would flag the installed release.
+      chrome.storage.local.get({ __updateCheck: null }, (s) => {
+        const info = s && s.__updateCheck;
+        setUpdateBadge(!!info && isNewerVersion(info.latestVersion, current));
+      });
+    });
 }
 
 function onBoot() {

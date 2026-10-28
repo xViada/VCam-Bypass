@@ -395,7 +395,11 @@
 
   function applyUpdateModal(updateCheck, dismissedVersion) {
     const info = updateCheck || {};
-    const available = !!info.updateAvailable && !!info.latestVersion;
+    // Compared against the running version, not just the stored flag: a check
+    // that failed right after updating leaves the old result behind.
+    const available =
+      !!info.updateAvailable &&
+      S.isNewerVersion(info.latestVersion, chrome.runtime.getManifest().version);
     const modalOpen = available && info.latestVersion !== dismissedVersion;
 
     document.body.classList.toggle("update-available", available);
