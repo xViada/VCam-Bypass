@@ -10,9 +10,9 @@
   if (window.__vcamMaskInstalled) return;
   window.__vcamMaskInstalled = true;
 
-  // Self-contained on purpose: content scripts injected into the page's MAIN
-  // world can't reliably share globals across files, so this file must not
-  // depend on shared.js (doing so silently broke masking on real pages).
+  // Self-contained on purpose: in the MAIN world every global is visible to
+  // the page, so this file inlines its helpers instead of loading shared.js.
+  // The one exception is profiles.js, whose global is taken and deleted below.
   const randomHex = (len) =>
     Array.from(crypto.getRandomValues(new Uint8Array(len / 2)), (b) =>
       b.toString(16).padStart(2, "0")

@@ -31,7 +31,7 @@
     },
     {
       "matches": ["<all_urls>"],
-      "js": ["bridge.js"],
+      "js": ["shared.js", "bridge.js"],
       "run_at": "document_start",
       "all_frames": true,
       "world": "ISOLATED"
